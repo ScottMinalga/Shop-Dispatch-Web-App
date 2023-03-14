@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCC Submit Form</title>
+</head>
+<body>
+    
+   <h1>MCC Project</h1> 
+
+   <form action="">
+        <div>
+            <label for="title">Project Number</Title></label>
+            <input type="text" name="title" placeholder="123...">
+            <br>
+        </div>
+        <div>
+            <label for="title">Job Number</Title></label>
+            <input type="text" name="title" placeholder="123...">
+            <br>
+        </div>
+        <div>
+            <label for="title">Sales Order Number</Title></label>
+            <input type="text" name="title" placeholder="123...">
+            <br>
+        </div>
+        <div>
+            <label for="title">Customer Name</Title></label>
+            <input type="text" name="title" placeholder="John Smith...">
+            <br>
+        </div>
+        <div>
+            <label for="title">Builder</Title></label>
+            <input type="text" name="title" placeholder="Jeremy...">
+            <br>
+        </div>
+        <div>
+            <label for="title">Status</Title></label>
+            <input type="text" name="title" placeholder="New...">
+            <br>
+        </div>
+        <div>
+            <button>Submit</button>
+        </div>
+
+   </form>
+
+   {% for todo in todo_list%}
+        <p> {{ todo.id }} | {{ todo.title }} </p>
+
+        {% if todo.complete == False %}
+            <span>Not Complete</span>
+        {% else %}
+            <span>Completed</span>
+        {% endif %}
+
+        <a href=""></a>
+
+
+   {% endfor %}
+</body>
+</html>
