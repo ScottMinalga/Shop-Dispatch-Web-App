@@ -2,7 +2,7 @@ from flask import Flask, request, flash, url_for, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask (__name__)
-app.config ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////projects/sql.db'
+app.config ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///projects/sql.db'
 
 db = SQLAlchemy(app)
 
@@ -25,7 +25,7 @@ def __init__(self, projectnum, jobnum, salesnum, customername, builder, status):
 
 @app.route('/')
 def table():
-    return render_template('table.html')
+    return render_template('show_all.html')
 
 @app.route('/new', methods = ['GET', 'POST'])
 def new():
@@ -39,10 +39,9 @@ def new():
             db.session.add(project)
             db.session.commit()
             flash(f"Project was successfully added")
-            return redirect(url_for('show_all'))
-    return render_template('Submit.html')
+            return redirect(url_for('table'))
+    return render_template('new.html')
 
-# if __name__ == '__main__':
 with app.app_context():
     db.create_all()
     app.run(debug = True)

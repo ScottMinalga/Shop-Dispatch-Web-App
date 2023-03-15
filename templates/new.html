@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+   <body>
+   
+      <h3>MCC Add Project</h3>
+      <hr/>
+      
+      {%- for category, message in get_flashed_messages(with_categories = true) %}
+         <div class = "alert alert-danger">
+            {{ message }}
+         </div>
+      {%- endfor %}
+      
+      <form action = "{{ request.path }}" method = "post">
+         <label for = "projectnum">Project Number</label><br>
+         <input type = "text" name = "projectnum" placeholder = "MCC***" /><br>
+         <label for = "jobnum">Job Number</label><br>
+         <input type = "text" name = "jobnum" placeholder = "1234" /><br>
+         <label for = "salesnum">Sales Number</label><br>
+         <input type = "text" name = "salesnum" placeholder = "1234" /><br>
+         <label for = "customername">Customer Name</label><br>
+         <input type = "text" name = "customername" placeholder = "John Smith inc" /><br>
+         <label for = "builder">Builder</label><br>
+         <input type = "text" name = "builder" placeholder="Scott"><br>
+         <label for = "status">Status</label><br>
+         <input type = "text" name = "status" placeholder = "NEW"><br>
+         <input type = "submit" value = "Submit" />
+      </form>
+      
+   </body>
+</html>
