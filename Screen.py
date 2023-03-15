@@ -15,13 +15,13 @@ class projects(db.Model):
     builder = db.Column(db.String(50))
     status = db.Column(db.String(50))
 
-def __init__(self, projectnum, jobnum, salesnum, customername, builder, status):
-    self.projectnum = projectnum
-    self.jobnum = jobnum
-    self.salesnum = salesnum
-    self.customername = customername
-    self.builder = builder
-    self.status = status
+    def __init__(self, projectnum, jobnum, salesnum, customername, builder, status):
+        self.projectnum = projectnum
+        self.jobnum = jobnum
+        self.salesnum = salesnum
+        self.customername = customername
+        self.builder = builder
+        self.status = status
 
 @app.route('/')
 def table():

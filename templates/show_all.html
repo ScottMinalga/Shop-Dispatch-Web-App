@@ -28,14 +28,14 @@
          </thead>
          
          <tbody>
-            {% for student in students %}
+            {% for project in projects %}
                <tr>
                   <td>{{ project.projectnum }}</td>
                   <td>{{ project.jobnum }}</td>
                   <td>{{ project.salesnum }}</td>
                   <td>{{ project.customername }}</td>
-                  <td>{{ project.builder}}</td>
-                  <td>{{ project.status}}</td>
+                  <td>{{ project.builder }}</td>
+                  <td>{{ project.status }}</td>
                </tr>
             {% endfor %}
          </tbody>
