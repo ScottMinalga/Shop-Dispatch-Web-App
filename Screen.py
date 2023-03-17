@@ -22,10 +22,11 @@ class projects(db.Model):
     builder = db.Column(db.String(100))
     status = db.Column(db.String(100))
     notes = db.Column(db.String(500))
+    due_date =db.Column(db.String(100))
 
 
 
-    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes):
+    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date):
         self.project_number = project_number
         self.job_number = job_number
         self.sales_order = sales_order
@@ -33,6 +34,7 @@ class projects(db.Model):
         self.builder = builder
         self.status = status
         self.notes = notes
+        self.due_date = due_date
 
 
 # we can use html to pass variable through
@@ -44,7 +46,7 @@ def home():
 def view():
     return render_template("view.html", values=users.query.all())
 
-@app.route("/login", methods=["POST", "GET"])
+@app.route("/submit", methods=["POST", "GET"])
 def login():
     if request.method == "POST":
         session.permanent = True
@@ -98,6 +100,10 @@ def logout():
     session.pop("user", None)
     session.pop("email", None)
     return redirect(url_for("login"))
+
+@app.route("/nesting")
+def nesting():
+    return render_template("Nesting.html")
 
 #run the app and creats db database if not already done
 if __name__ == "__main__":
