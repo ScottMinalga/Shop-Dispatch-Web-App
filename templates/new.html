@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html>
-   <body>
-   
-      <h3>MCC Add Project</h3>
-      <hr/>
+{% extends "base.html" %}
+{% block title %}ADD JOB{% endblock %}
+{% block content %}
+      <h2>Add Job</h2>
       
       {%- for category, message in get_flashed_messages(with_categories = true) %}
          <div class = "alert alert-danger">
@@ -11,21 +9,32 @@
          </div>
       {%- endfor %}
       
-      <form action = "{{ request.path }}" method = "post">
-         <label for = "projectnum">Project Number</label><br>
+      <form action = "{{ request.path }}" method = "POST">
+         <label for = "order_date">Order Date</label>
+         <input type = "text" name = "order_date" id=""><br>
+         <label for = "ship_date">Ship Date</label>
+         <input type = "text" name = "ship_date" id=""><br>
+         <label for = "due_date">Due Date</label>
+         <input type = "text" name = "due_date" id=""><br>
+         <label for = "projectnum">Project Number</label>
          <input type = "text" name = "projectnum" placeholder = "MCC***" /><br>
-         <label for = "jobnum">Job Number</label><br>
+         <label for = "jobnum">Job Number</label>
          <input type = "text" name = "jobnum" placeholder = "1234" /><br>
-         <label for = "salesnum">Sales Number</label><br>
+         <label for = "salesnum">Sales Number</label>
          <input type = "text" name = "salesnum" placeholder = "1234" /><br>
-         <label for = "customername">Customer Name</label><br>
+         <label for = "customername">Customer Name</label>
          <input type = "text" name = "customername" placeholder = "John Smith inc" /><br>
-         <label for = "builder">Builder</label><br>
+         <label for = "builder">Builder</label>
          <input type = "text" name = "builder" placeholder="Scott"><br>
-         <label for = "status">Status</label><br>
+         <label for = "status">Status</label>
          <input type = "text" name = "status" placeholder = "NEW"><br>
+         <label for = "order_quantity">Order Quantity</label>
+         <input type = "text" name = "order_quantity" id=""><br>
+         <label for = "notes">NOTES</label>
+         <textarea name="notes" id="" cols="30" rows="2"></textarea><br>
          <input type = "submit" value = "Submit" />
       </form>
       
    </body>
 </html>
+{% endblock %}
