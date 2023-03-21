@@ -1,17 +1,28 @@
 {% extends "base.html" %}
-<table class="table table-striped">
-    <thead>
-      ...
-    </thead>
-    <tbody>
-      ...
-      <tr>
-        <td colspan="4">
-          <table class="table mb-0">
-            ...
-          </table>
-        </td>
-      </tr>
-      ...
-    </tbody>
-  </table>
+
+{% block content %}
+<div class="container mt-5">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" id="asm01-tab" data-toggle="tab" href="#asm01">ASM01</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="asm02-tab" data-toggle="tab" href="#asm02">ASM02</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive">Archive</a>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="asm01" role="tabpanel" aria-labelledby="asm01-tab">
+      <!-- Your ASM01 table code goes here -->
+    </div>
+    <div class="tab-pane" id="asm02" role="tabpanel" aria-labelledby="asm02-tab">
+      <!-- Your ASM02 table code goes here -->
+    </div>
+    <div class="tab-pane" id="archive" role="tabpanel" aria-labelledby="archive-tab">
+      <!-- Your Archive table code goes here -->
+    </div>
+  </div>
+</div>
+{% endblock %}

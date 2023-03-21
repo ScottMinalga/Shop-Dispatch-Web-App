@@ -1,14 +1,15 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from datetime import timedelta
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
-#create instance of the app
+# Create instance of the app
 app = Flask(__name__)
 app.secret_key = "marubeni"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///projects.sqlite3'
-app.config['SQLALCHENY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Fixed the typo
 app.permanent_session_lifetime = timedelta(minutes=120)
-
 
 db = SQLAlchemy(app)
 
@@ -111,20 +112,30 @@ class parts(db.Model):
     ship_date = db.Column(db.String(100))
     order_quantity = db.Column(db.String(100))
 
-
-
-    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity):
+    def __init__(self, project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity):
         self.project_number = project_number
         self.job_number = job_number
         self.sales_order = sales_order
-        self.customer_name = customer_name
-        self.builder = builder
+        self.vendor_name = vendor_name
         self.status = status
         self.notes = notes
-        self.due_date = due_date
-        self.order_date = order_date
         self.ship_date = ship_date
         self.order_quantity = order_quantity
+
+class User(db.Model):
+    _id = db.Column("id", db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
+
+    def __init__(self, username, email, password):
+        self.username = username
+        self.email = email
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
 
 # we can use html to pass variable through
@@ -134,42 +145,18 @@ def home():
 
 @app.route("/view")
 def view():
-    return render_template("view.html", values=projects.query.all())
-
-@app.route("/submit", methods=["POST", "GET"])
-def login():
-    if request.method == "POST":
-        session.permanent = True
-        user = request.form["nm"]
-        session["user"] = user
-
-        found_user = projects.query.filter_by(name=user).first()
-        if found_user:
-            session["email"] = found_user.email
-        else:
-            usr = projects(user,"")
-            db.session.add(usr)
-            db.session.commit()
-
-        flash("Login Succesful")
-        return redirect(url_for("user"))       
-    else:
-        if "user" in session:
-            flash("Already logged in!")
-            return redirect(url_for("user"))
-        
-        return render_template("login.html")
+    return render_template('Nesting.html')
 
 @app.route("/user", methods=["POST", "GET"])
 def user():
     email = None
-    if "user" in session:
-        user = session["user"]
+    if "username" in session:
+        username = session["username"]
 
         if request.method == "POST":
             email = request.form["email"]
             session["email"] = email
-            found_user = projects.query.filter_by(name=user).first()
+            found_user = User.query.filter_by(username=username).first()
             found_user.email = email
             db.session.commit()
             flash("Email was saved!")
@@ -184,8 +171,40 @@ def user():
     
 @app.route("/add", methods=["POST","GET"])
 def add():
+    if request.method == 'POST':
+        target_table = request.form['target_table']
+        
+        # Use target_table to decide which table to insert the new job into
+        if target_table == 'asm01':
+            # Insert the job into the ASM01 table
+            pass
+        elif target_table == 'asm02':
+            # Insert the job into the ASM02 table
+            pass
+        elif target_table == 'archive':
+            # Insert the job into the Archive table
+            pass
+    if request.method == "POST":
+        project_number = request.form["projectnum"]
+        job_number = request.form["jobnum"]
+        sales_order = request.form["salesnum"]
+        customer_name = request.form["customername"]
+        builder = request.form["builder"]
+        status = request.form["status"]
+        order_quantity = request.form["order_quantity"]
+        due_date = request.form["due_date"]
+        order_date = request.form["order_date"]
+        ship_date = request.form["ship_date"]
+        notes = request.form["notes"]
+
+        new_job = ASM02(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+        db.session.add(new_job)
+        db.session.commit()
+        flash("Job added successfully!")
+        return redirect(url_for("view"))
+
     return render_template("new.html")
-    
+   
 @app.route("/logout")
 def logout():
     if "user" in session:
@@ -199,8 +218,87 @@ def logout():
 def nesting():
     return render_template("Nesting.html")
 
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "username" not in session:
+            flash("You need to be logged in to access this page.", "danger")
+            return redirect(url_for("login"))
+        user = User.query.filter_by(username=session["username"]).first()
+        if not user.is_admin:
+            flash("You don't have permission to access this page.", "danger")
+            return redirect(url_for("home"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route("/admin")
+@admin_required
+def admin():
+    return render_template("admin.html")
+
+@app.route('/add_user', methods=['POST'])
+@admin_required
+def add_user():
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    is_admin = 'is_admin' in request.form
+
+    existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
+    if existing_user:
+        flash('Username or email already exists.', 'danger')
+        return redirect(url_for('admin'))
+
+    new_user = User(username=username, email=email, password=password)
+    new_user.is_admin = is_admin
+    db.session.add(new_user)
+    db.session.commit()
+
+    flash('User added successfully.', 'success')
+    return redirect(url_for('admin'))
+
+def create_initial_admin():
+    # Check if an admin user already exists
+    existing_admin = User.query.filter(User.is_admin == True).first()
+
+    if not existing_admin:
+        # Set your admin user's details
+        admin_username = "SMinalga"
+        admin_email = "Admin@email.com"
+        admin_password = "ScottyAdmin"
+
+        # Create the admin user
+        admin_user = User(username=admin_username, email=admin_email, password=admin_password)
+        admin_user.is_admin = True
+        db.session.add(admin_user)
+        db.session.commit()
+
+        print("Initial admin user created.")
+    else:
+        print("An admin user already exists.")
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):
+            session['user_id'] = user._id
+            session['username'] = user.username
+            session['is_admin'] = user.is_admin
+
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Incorrect username or password. Please try again.', 'danger')
+
+    return render_template('login.html')
+
 #run the app and creats db database if not already done
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug = True)
+        create_initial_admin()
+    app.run(debug=True)
