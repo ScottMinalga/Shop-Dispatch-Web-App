@@ -8,7 +8,7 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = "marubeni"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///projects.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Fixed the typo
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.permanent_session_lifetime = timedelta(minutes=120)
 
 db = SQLAlchemy(app)
