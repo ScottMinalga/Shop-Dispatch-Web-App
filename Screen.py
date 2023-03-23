@@ -174,16 +174,20 @@ def add():
     if request.method == 'POST':
         target_table = request.form['target_table']
         
-        # Use target_table to decide which table to insert the new job into
         if target_table == 'asm01':
-            # Insert the job into the ASM01 table
-            pass
+            new_job = ASM01(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
         elif target_table == 'asm02':
-            # Insert the job into the ASM02 table
-            pass
+            new_job = ASM02(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
         elif target_table == 'archive':
-            # Insert the job into the Archive table
-            pass
+            new_job = archive(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+        else:
+            # Handle invalid input
+            return redirect(url_for('add'))
+
+        db.session.add(new_job)
+        db.session.commit()
+        flash("Job added successfully!")
+        return redirect(url_for("view"))
     if request.method == "POST":
         project_number = request.form["projectnum"]
         job_number = request.form["jobnum"]

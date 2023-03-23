@@ -15,14 +15,114 @@
   </ul>
   <div class="tab-content">
     <div class="tab-pane active" id="asm01" role="tabpanel" aria-labelledby="asm01-tab">
-      <!-- Your ASM01 table code goes here -->
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Project Number</th>
+            <th>Job Number</th>
+            <th>Sales Order</th>
+            <th>Customer Name</th>
+            <th>Builder</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Due Date</th>
+            <th>Order Date</th>
+            <th>Ship Date</th>
+            <th>Order Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in asm01_data %}
+          <tr>
+            <td>{{ job.project_number }}</td>
+            <td>{{ job.job_number }}</td>
+            <td>{{ job.sales_order }}</td>
+            <td>{{ job.customer_name }}</td>
+            <td>{{ job.builder }}</td>
+            <td>{{ job.status }}</td>
+            <td>{{ job.notes }}</td>
+            <td>{{ job.due_date }}</td>
+            <td>{{ job.order_date }}</td>
+            <td>{{ job.ship_date }}</td>
+            <td>{{ job.order_quantity }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <div class="tab-pane" id="asm02" role="tabpanel" aria-labelledby="asm02-tab">
-      <!-- Your ASM02 table code goes here -->
+    <div class="tab-pane active" id="asm02" role="tabpane2" aria-labelledby="asm02-tab">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Project Number</th>
+            <th>Job Number</th>
+            <th>Sales Order</th>
+            <th>Customer Name</th>
+            <th>Builder</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Due Date</th>
+            <th>Order Date</th>
+            <th>Ship Date</th>
+            <th>Order Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in asm02_data %}
+          <tr>
+            <td>{{ job.project_number }}</td>
+            <td>{{ job.job_number }}</td>
+            <td>{{ job.sales_order }}</td>
+            <td>{{ job.customer_name }}</td>
+            <td>{{ job.builder }}</td>
+            <td>{{ job.status }}</td>
+            <td>{{ job.notes }}</td>
+            <td>{{ job.due_date }}</td>
+            <td>{{ job.order_date }}</td>
+            <td>{{ job.ship_date }}</td>
+            <td>{{ job.order_quantity }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <div class="tab-pane" id="archive" role="tabpanel" aria-labelledby="archive-tab">
-      <!-- Your Archive table code goes here -->
+    <div class="tab-pane active" id="archive" role="tabpane3" aria-labelledby="archive-tab">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Project Number</th>
+            <th>Job Number</th>
+            <th>Sales Order</th>
+            <th>Customer Name</th>
+            <th>Builder</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Due Date</th>
+            <th>Order Date</th>
+            <th>Ship Date</th>
+            <th>Order Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in archive_data %}
+          <tr>
+            <td>{{ job.project_number }}</td>
+            <td>{{ job.job_number }}</td>
+            <td>{{ job.sales_order }}</td>
+            <td>{{ job.customer_name }}</td>
+            <td>{{ job.builder }}</td>
+            <td>{{ job.status }}</td>
+            <td>{{ job.notes }}</td>
+            <td>{{ job.due_date }}</td>
+            <td>{{ job.order_date }}</td>
+            <td>{{ job.ship_date }}</td>
+            <td>{{ job.order_quantity }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+    
   </div>
 </div>
 {% endblock %}
