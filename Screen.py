@@ -174,38 +174,67 @@ def add():
     if request.method == 'POST':
         target_table = request.form['target_table']
         
-        if target_table == 'asm01':
-            new_job = ASM01(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
-        elif target_table == 'asm02':
-            new_job = ASM02(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+        if target_table == 'ASM01-tab':
+            project_number = request.form["projectnum"]
+            job_number = request.form["jobnum"]
+            sales_order = request.form["salesnum"]
+            customer_name = request.form["customername"]
+            builder = request.form["builder"]
+            status = request.form["status"]
+            order_quantity = request.form["order_quantity"]
+            due_date = request.form["due_date"]
+            order_date = request.form["order_date"]
+            ship_date = request.form["ship_date"]
+            notes = request.form["notes"]
+
+            new_job01 = ASM01(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+            db.session.add(new_job01)
+            db.session.commit()
+            flash("Job added successfully!")
+            return redirect(url_for("view"))
+        
+        elif target_table == 'ASM02':
+            project_number = request.form["projectnum"]
+            job_number = request.form["jobnum"]
+            sales_order = request.form["salesnum"]
+            customer_name = request.form["customername"]
+            builder = request.form["builder"]
+            status = request.form["status"]
+            order_quantity = request.form["order_quantity"]
+            due_date = request.form["due_date"]
+            order_date = request.form["order_date"]
+            ship_date = request.form["ship_date"]
+            notes = request.form["notes"]
+
+            new_job02 = ASM02(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+            db.session.add(new_job02)
+            db.session.commit()
+            flash("Job added successfully!")
+            return redirect(url_for("view"))
+        
         elif target_table == 'archive':
-            new_job = archive(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+            project_number = request.form["projectnum"]
+            job_number = request.form["jobnum"]
+            sales_order = request.form["salesnum"]
+            customer_name = request.form["customername"]
+            builder = request.form["builder"]
+            status = request.form["status"]
+            order_quantity = request.form["order_quantity"]
+            due_date = request.form["due_date"]
+            order_date = request.form["order_date"]
+            ship_date = request.form["ship_date"]
+            notes = request.form["notes"]
+
+            new_jobA = archive(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+            db.session.add(new_jobA)
+            db.session.commit()
+            flash("Job added successfully!")
+            return redirect(url_for("view"))
+        
         else:
             # Handle invalid input
+            flash("Error, Try Again, Make sure you fill out the form correctly, If you keep getting error please see system admin")
             return redirect(url_for('add'))
-
-        db.session.add(new_job)
-        db.session.commit()
-        flash("Job added successfully!")
-        return redirect(url_for("view"))
-    if request.method == "POST":
-        project_number = request.form["projectnum"]
-        job_number = request.form["jobnum"]
-        sales_order = request.form["salesnum"]
-        customer_name = request.form["customername"]
-        builder = request.form["builder"]
-        status = request.form["status"]
-        order_quantity = request.form["order_quantity"]
-        due_date = request.form["due_date"]
-        order_date = request.form["order_date"]
-        ship_date = request.form["ship_date"]
-        notes = request.form["notes"]
-
-        new_job = ASM02(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
-        db.session.add(new_job)
-        db.session.commit()
-        flash("Job added successfully!")
-        return redirect(url_for("view"))
 
     return render_template("new.html")
    
@@ -217,10 +246,6 @@ def logout():
     session.pop("user", None)
     session.pop("email", None)
     return redirect(url_for("login"))
-
-@app.route("/nesting")
-def nesting():
-    return render_template("Nesting.html")
 
 def admin_required(f):
     @wraps(f)

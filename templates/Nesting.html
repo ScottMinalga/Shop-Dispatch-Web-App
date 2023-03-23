@@ -4,17 +4,17 @@
 <div class="container mt-5">
   <ul class="nav nav-tabs">
     <li class="nav-item">
-      <a class="nav-link active" id="asm01-tab" data-toggle="tab" href="#asm01">ASM01</a>
+      <a class="nav-link active" id="ASM01-tab" data-toggle="tab" href="#ASM01">ASM01</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" id="asm02-tab" data-toggle="tab" href="#asm02">ASM02</a>
+      <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02">ASM02</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive">Archive</a>
     </li>
   </ul>
   <div class="tab-content">
-    <div class="tab-pane active" id="asm01" role="tabpanel" aria-labelledby="asm01-tab">
+    <div class="tab-pane active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
       <table class="table">
         <thead>
           <tr>
@@ -32,7 +32,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for job in asm01_data %}
+          {% for job in ASM01_data %}
           <tr>
             <td>{{ job.project_number }}</td>
             <td>{{ job.job_number }}</td>
@@ -50,7 +50,7 @@
         </tbody>
       </table>
     </div>
-    <div class="tab-pane active" id="asm02" role="tabpane2" aria-labelledby="asm02-tab">
+    <div class="tab-pane active" id="ASM02" role="tabpane2" aria-labelledby="ASM02-tab">
       <table class="table">
         <thead>
           <tr>
@@ -68,7 +68,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for job in asm02_data %}
+          {% for job in ASM02_data %}
           <tr>
             <td>{{ job.project_number }}</td>
             <td>{{ job.job_number }}</td>
