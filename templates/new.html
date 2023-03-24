@@ -34,13 +34,12 @@
   <div class="form-group">
     <label for="target_table">Target Table</label>
     <select name="target_table" id="target_table">
-      <option value="asm01">ASM01</option>
-      <option value="asm02">ASM02</option>
-      <option value="archive">Archive</option>
+      <option value="ASM01-tab">ASM01</option>
+      <option value="ASM02-tab">ASM02</option>
+      <option value="archive-tab">Archive</option>
     </select>
   </div>
-      
-<form action="{{ request.path }}" method="POST">
+  
   <div class="form-group">
     <label for="order_date">Order Date</label>
     <input type="text" name="order_date" id="order_date">
@@ -68,6 +67,5 @@
           <textarea name="notes" id="notes" cols="30" rows="2"></textarea>
         </div>
         <input type="submit" value="Submit" />
-     </form>
-     
-     {% endblock %}
+</form>
+{% endblock %}

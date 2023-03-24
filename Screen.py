@@ -145,7 +145,65 @@ def home():
 
 @app.route("/view")
 def view():
-    return render_template('render_table.html')
+    ASM01_data = ASM01.query.all()
+    ASM02_data = ASM02.query.all()
+    archive_data = archive.query.all()
+    return render_template('render_table_with_tabs.html', ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
+
+@app.route("/edit/<string:table_name>/<int:entry_id>", methods=["GET", "POST"])
+def edit_entry(table_name, entry_id):
+    if table_name == "ASM01":
+        model_class = ASM01
+    elif table_name == "ASM02":
+        model_class = ASM02
+    elif table_name == "archive":
+        model_class = archive
+    else:
+        flash("Invalid table name.")
+        return redirect(url_for("view"))
+
+    entry = model_class.query.get_or_404(entry_id)
+
+    if request.method == "GET":
+        return render_template("edit.html", entry=entry)
+
+    if request.method == "POST":
+        entry.project_number = request.form["projectnum"]
+        entry.job_number = request.form["jobnum"]
+        entry.sales_order = request.form["salesnum"]
+        entry.customer_name = request.form["customername"]
+        entry.builder = request.form["builder"]
+        entry.status = request.form["status"]
+        entry.notes = request.form["notes"]
+        entry.due_date = request.form["due_date"]
+        entry.order_date = request.form["order_date"]
+        entry.ship_date = request.form["ship_date"]
+        entry.order_quantity = request.form["order_quantity"]
+
+        db.session.commit()
+        flash("Entry updated successfully!")
+        return redirect(url_for("view"))
+
+    return render_template("edit.html", entry=entry)
+
+
+@app.route("/delete/<string:table_name>/<int:entry_id>")
+def delete_entry(table_name, entry_id):
+    if table_name == "ASM01":
+        model_class = ASM01
+    elif table_name == "ASM02":
+        model_class = ASM02
+    elif table_name == "archive":
+        model_class = archive
+    else:
+        flash("Invalid table name.")
+        return redirect(url_for("view"))
+
+    entry = model_class.query.get_or_404(entry_id)
+    db.session.delete(entry)
+    db.session.commit()
+    flash("Entry deleted successfully!")
+    return redirect(url_for("view"))
 
 @app.route("/user", methods=["POST", "GET"])
 def user():
@@ -169,7 +227,7 @@ def user():
         flash("You are not logged in!")
         return redirect(url_for("login"))
     
-@app.route("/add", methods=["POST","GET"])
+@app.route("/add", methods=["POST", "GET"])
 def add():
     ASM01_data = ASM01.query.all()
     ASM02_data = ASM02.query.all()
@@ -243,7 +301,7 @@ def add():
             flash("Error, Try Again, Make sure you fill out the form correctly, If you keep getting error please see system admin")
             return redirect(url_for('add'))
 
-    return render_template("new.html")
+    return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
    
 @app.route("/logout")
 def logout():

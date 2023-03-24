@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import render_table %}
+
+{% block content %}
+<div class="container">
+  <h2>Tables</h2>
+  <ul class="nav nav-tabs" id="myTabs" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" id="ASM01-tab" data-toggle="tab" href="#ASM01" role="tab" aria-controls="ASM01" aria-selected="true">ASM01</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02" role="tab" aria-controls="ASM02" aria-selected="false">ASM02</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive" role="tab" aria-controls="archive" aria-selected="false">Archive</a>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
+      {{ render_table(ASM01_data, 'ASM01') }}
+    </div>
+    <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
+      {{ render_table(ASM02_data, 'ASM02') }}
+    </div>
+    <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
+      {{ render_table(archive_data, 'archive') }}
+    </div>
+  </div>
+</div>
+{% endblock %}
