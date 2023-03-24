@@ -31,20 +31,20 @@
 {%- endfor %}
 
 <form action="{{ request.path }}" method="POST">
-   <div class="form-group">
-     <label for="target_table">Target Table</label>
-     <select name="target_table" id="target_table">
-       <option value="asm01">ASM01</option>
-       <option value="asm02">ASM02</option>
-       <option value="archive">Archive</option>
-     </select>
-   </div>
+  <div class="form-group">
+    <label for="target_table">Target Table</label>
+    <select name="target_table" id="target_table">
+      <option value="asm01">ASM01</option>
+      <option value="asm02">ASM02</option>
+      <option value="archive">Archive</option>
+    </select>
+  </div>
       
 <form action="{{ request.path }}" method="POST">
-   <div class="form-group">
-     <label for="order_date">Order Date</label>
-     <input type="text" name="order_date" id="order_date">
-   </div>
+  <div class="form-group">
+    <label for="order_date">Order Date</label>
+    <input type="text" name="order_date" id="order_date">
+  </div>
          <label for = "ship_date">Ship Date</label>
          <input type = "text" name = "ship_date" id=""><br>
          <label for = "due_date">Due Date</label>
@@ -64,12 +64,10 @@
          <label for = "order_quantity">Order Quantity</label>
          <input type = "text" name = "order_quantity" id=""><br>
          <div class="form-group">
-            <label for="notes">NOTES</label>
-            <textarea name="notes" id="notes" cols="30" rows="2"></textarea>
-          </div>
-         <input type = "submit" value = "Submit" />
-      </form>
-      
-   </body>
-</html>
-{% endblock %}
+          <label for="notes">NOTES</label>
+          <textarea name="notes" id="notes" cols="30" rows="2"></textarea>
+        </div>
+        <input type="submit" value="Submit" />
+     </form>
+     
+     {% endblock %}

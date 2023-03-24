@@ -145,7 +145,7 @@ def home():
 
 @app.route("/view")
 def view():
-    return render_template('Nesting.html')
+    return render_template('render_table.html')
 
 @app.route("/user", methods=["POST", "GET"])
 def user():
@@ -171,6 +171,10 @@ def user():
     
 @app.route("/add", methods=["POST","GET"])
 def add():
+    ASM01_data = ASM01.query.all()
+    ASM02_data = ASM02.query.all()
+    archive_data = archive.query.all()
+
     if request.method == 'POST':
         target_table = request.form['target_table']
         
@@ -191,9 +195,10 @@ def add():
             db.session.add(new_job01)
             db.session.commit()
             flash("Job added successfully!")
-            return redirect(url_for("view"))
+            ASM01_data = ASM01.query.all()
+            return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
         
-        elif target_table == 'ASM02':
+        elif target_table == 'ASM02-tab':
             project_number = request.form["projectnum"]
             job_number = request.form["jobnum"]
             sales_order = request.form["salesnum"]
@@ -210,9 +215,10 @@ def add():
             db.session.add(new_job02)
             db.session.commit()
             flash("Job added successfully!")
-            return redirect(url_for("view"))
+            ASM02_data = ASM02.query.all()
+            return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
         
-        elif target_table == 'archive':
+        elif target_table == 'archive-tab':
             project_number = request.form["projectnum"]
             job_number = request.form["jobnum"]
             sales_order = request.form["salesnum"]
@@ -229,7 +235,8 @@ def add():
             db.session.add(new_jobA)
             db.session.commit()
             flash("Job added successfully!")
-            return redirect(url_for("view"))
+            archive_data = archive.query.all()
+            return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
         
         else:
             # Handle invalid input
@@ -240,9 +247,9 @@ def add():
    
 @app.route("/logout")
 def logout():
-    if "user" in session:
-        user = session["user"]
-        flash(f"You have been logged out, {user}!", "info")
+    if "username" in session:
+        username = session["username"]
+        flash(f"You have been logged out, {username}!", "info")
     session.pop("user", None)
     session.pop("email", None)
     return redirect(url_for("login"))
@@ -287,15 +294,15 @@ def add_user():
     return redirect(url_for('admin'))
 
 def create_initial_admin():
+    # Set your admin user's details
+    admin_username = "SMinalga"
+    admin_email = "Admin@email.com"
+    admin_password = "ScottyAdmin"
+
     # Check if an admin user already exists
-    existing_admin = User.query.filter(User.is_admin == True).first()
+    existing_admin = User.query.filter_by(username=admin_username).first()
 
     if not existing_admin:
-        # Set your admin user's details
-        admin_username = "SMinalga"
-        admin_email = "Admin@email.com"
-        admin_password = "ScottyAdmin"
-
         # Create the admin user
         admin_user = User(username=admin_username, email=admin_email, password=admin_password)
         admin_user.is_admin = True
@@ -331,3 +338,4 @@ if __name__ == "__main__":
         db.create_all()
         create_initial_admin()
     app.run(debug=True)
+
