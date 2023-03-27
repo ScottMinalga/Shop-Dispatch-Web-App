@@ -390,7 +390,7 @@ def login():
 
     return render_template('login.html')
 
-#run the app and creats db database if not already done
+#run the app and creates db database if not already done
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
