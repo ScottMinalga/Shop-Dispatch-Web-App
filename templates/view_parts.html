@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Parts</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Project Number</th>
+      <th>Job Number</th>
+      <th>Sales Order</th>
+      <th>Vendor Name</th>
+      <th>Status</th>
+      <th>Notes</th>
+      <th>Ship Date</th>
+      <th>Order Quantity</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for part in parts %}
+    <tr>
+      <td>{{ part.project_number }}</td>
+      <td>{{ part.job_number }}</td>
+      <td>{{ part.sales_order }}</td>
+      <td>{{ part.vendor_name }}</td>
+      <td>{{ part.status }}</td>
+      <td>{{ part.notes }}</td>
+      <td>{{ part.ship_date }}</td>
+      <td>{{ part.order_quantity }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

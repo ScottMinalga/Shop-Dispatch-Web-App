@@ -14,34 +14,6 @@ app.permanent_session_lifetime = timedelta(minutes=120)
 db = SQLAlchemy(app)
 
 #model for SQL
-class ASM02(db.Model):
-    _id = db.Column("id", db.Integer, primary_key=True)
-    project_number = db.Column(db.String(100))
-    job_number = db.Column(db.String(100))
-    sales_order = db.Column(db.String(100))
-    customer_name = db.Column(db.String(100))
-    builder = db.Column(db.String(100))
-    status = db.Column(db.String(100))
-    notes = db.Column(db.String(500))
-    due_date =db.Column(db.String(100))
-    order_date = db.Column(db.String(100))
-    ship_date = db.Column(db.String(100))
-    order_quantity = db.Column(db.String(100))
-
-
-
-    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity):
-        self.project_number = project_number
-        self.job_number = job_number
-        self.sales_order = sales_order
-        self.customer_name = customer_name
-        self.builder = builder
-        self.status = status
-        self.notes = notes
-        self.due_date = due_date
-        self.order_date = order_date
-        self.ship_date = ship_date
-        self.order_quantity = order_quantity
 
 class ASM01(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
@@ -57,7 +29,32 @@ class ASM01(db.Model):
     ship_date = db.Column(db.String(100))
     order_quantity = db.Column(db.String(100))
 
+    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity):
+        self.project_number = project_number
+        self.job_number = job_number
+        self.sales_order = sales_order
+        self.customer_name = customer_name
+        self.builder = builder
+        self.status = status
+        self.notes = notes
+        self.due_date = due_date
+        self.order_date = order_date
+        self.ship_date = ship_date
+        self.order_quantity = order_quantity
 
+class ASM02(db.Model):
+    _id = db.Column("id", db.Integer, primary_key=True)
+    project_number = db.Column(db.String(100))
+    job_number = db.Column(db.String(100))
+    sales_order = db.Column(db.String(100))
+    customer_name = db.Column(db.String(100))
+    builder = db.Column(db.String(100))
+    status = db.Column(db.String(100))
+    notes = db.Column(db.String(500))
+    due_date =db.Column(db.String(100))
+    order_date = db.Column(db.String(100))
+    ship_date = db.Column(db.String(100))
+    order_quantity = db.Column(db.String(100))
 
     def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity):
         self.project_number = project_number
@@ -85,8 +82,6 @@ class archive(db.Model):
     order_date = db.Column(db.String(100))
     ship_date = db.Column(db.String(100))
     order_quantity = db.Column(db.String(100))
-
-
 
     def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity):
         self.project_number = project_number
@@ -303,14 +298,40 @@ def add():
 
     return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
    
-@app.route("/logout")
+@app.route("/add_part", methods=["GET", "POST"])
+def add_part():
+    if request.method == "POST":
+        project_number = request.form["project_number"]
+        job_number = request.form["job_number"]
+        sales_order = request.form["sales_order"]
+        vendor_name = request.form["vendor_name"]
+        status = request.form["status"]
+        notes = request.form["notes"]
+        ship_date = request.form["ship_date"]
+        order_quantity = request.form["order_quantity"]
+
+        part = parts(project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity)
+
+        db.session.add(part)
+        db.session.commit()
+
+        flash("Part added successfully!")
+        return redirect(url_for("add_part"))
+
+    return render_template("add_part.html")
+
+@app.route("/view_parts")
+def view_parts():
+    all_parts = parts.query.all()
+    return render_template("view_parts.html", parts=all_parts)
+
+@app.route('/logout')
 def logout():
-    if "username" in session:
-        username = session["username"]
-        flash(f"You have been logged out, {username}!", "info")
-    session.pop("user", None)
-    session.pop("email", None)
-    return redirect(url_for("login"))
+    session.pop('user_id', None)
+    session.pop('username', None)
+    session.pop('is_admin', None)
+    flash('Logged out successfully!', 'success')
+    return redirect(url_for('login'))
 
 def admin_required(f):
     @wraps(f)
@@ -390,7 +411,7 @@ def login():
 
     return render_template('login.html')
 
-#run the app and creats db database if not already done
+#run the app and creates db database if not already done
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()

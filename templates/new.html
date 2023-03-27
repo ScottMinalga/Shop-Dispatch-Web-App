@@ -9,7 +9,7 @@
    label {
      display: inline-block;
      width: 120px;
-     text-align: right;
+     text-align: left;
      margin-right: 10px;
    }
    input[type="text"],
@@ -42,28 +42,27 @@
   
   <div class="form-group">
     <label for="order_date">Order Date</label>
-    <input type="text" name="order_date" id="order_date">
-  </div>
-         <label for = "ship_date">Ship Date</label>
-         <input type = "text" name = "ship_date" id=""><br>
-         <label for = "due_date">Due Date</label>
-         <input type = "text" name = "due_date" id=""><br>
-         <label for = "projectnum">Project Number</label>
-         <input type = "text" name = "projectnum" placeholder = "MCC***" /><br>
-         <label for = "jobnum">Job Number</label>
-         <input type = "text" name = "jobnum" placeholder = "1234" /><br>
-         <label for = "salesnum">Sales Number</label>
-         <input type = "text" name = "salesnum" placeholder = "1234" /><br>
-         <label for = "customername">Customer Name</label>
-         <input type = "text" name = "customername" placeholder = "John Smith inc" /><br>
-         <label for = "builder">Builder</label>
-         <input type = "text" name = "builder" placeholder="Scott"><br>
-         <label for = "status">Status</label>
-         <input type = "text" name = "status" placeholder = "NEW"><br>
-         <label for = "order_quantity">Order Quantity</label>
-         <input type = "text" name = "order_quantity" id=""><br>
-         <div class="form-group">
-          <label for="notes">NOTES</label>
+    <input type="date" name="order_date" id="order_date">
+    <label for = "ship_date">Ship Date</label>
+    <input type = "date" name = "ship_date" id=""><br>
+    <label for = "due_date">Due Date</label>
+    <input type = "date" name = "due_date" id=""><br>
+    <label for = "projectnum">Project Number</label>
+    <input type = "text" name = "projectnum" placeholder = "MCC***" /><br>
+    <label for = "jobnum">Job Number</label>
+    <input type = "text" name = "jobnum" placeholder = "1234" /><br>
+    <label for = "salesnum">Sales Number</label>
+    <input type = "text" name = "salesnum" placeholder = "1234" /><br>
+    <label for = "customername">Customer Name</label>
+    <input type = "text" name = "customername" placeholder = "John Smith inc" /><br>
+    <label for = "builder">Builder</label>
+    <input type = "text" name = "builder" placeholder="Scott"><br>
+    <label for = "status">Status</label>
+    <input type = "text" name = "status" placeholder = "NEW"><br>
+    <label for = "order_quantity">Order Quantity</label>
+    <input type = "text" name = "order_quantity" id=""><br>
+      <div class="form-group">
+        <label for="notes">NOTES</label>
           <textarea name="notes" id="notes" cols="30" rows="2"></textarea>
         </div>
         <input type="submit" value="Submit" />

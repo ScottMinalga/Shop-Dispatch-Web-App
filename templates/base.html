@@ -23,19 +23,19 @@
                 <a class="nav-link" href="add">Add Job</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="parts_list">Parts List</a>
+                <a class="nav-link" href="view_parts">Parts List</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="add_part">Add Part</a>
               </li>
           
-              {% if "user" in session %}
+              {% if "user_id" in session %}
                 <li class="nav-item">
-                  <a class="nav-link" href="logout">Log out</a>
+                  <a class="nav-link" href="{{ url_for('logout') }}">Log out</a>
                 </li>
               {% else %}
                 <li class="nav-item">
-                  <a class="nav-link" href="login">Log in</a>
+                  <a class="nav-link" href="{{ url_for('login') }}">Log in</a>
                 </li>
               {% endif %}
             </ul>
