@@ -7,7 +7,7 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="/">Marubeni</a>
+          <a class="navbar-brand" href="/"><img src="/path/to/your/image.png" alt="Marubeni" height="30"></a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -23,19 +23,19 @@
                 <a class="nav-link" href="add">Add Job</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="parts_list">Parts List</a>
+                <a class="nav-link" href="view_parts">Parts List</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="add_part">Add Part</a>
               </li>
           
-              {% if "user" in session %}
+              {% if "user_id" in session %}
                 <li class="nav-item">
-                  <a class="nav-link" href="logout">Log out</a>
+                  <a class="nav-link" href="{{ url_for('logout') }}">Log out</a>
                 </li>
               {% else %}
                 <li class="nav-item">
-                  <a class="nav-link" href="login">Log in</a>
+                  <a class="nav-link" href="{{ url_for('login') }}">Log in</a>
                 </li>
               {% endif %}
             </ul>

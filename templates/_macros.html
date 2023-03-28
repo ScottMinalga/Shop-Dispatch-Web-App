@@ -1,5 +1,40 @@
 {% macro render_table(data, table_type) %}
+<style>
+  .button-container {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .table .btn {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.2rem;
+  }
+
+  .nested-list-btn {
+    font-size: 0.8rem;
+    padding: 0.0rem 1rem;
+    border-radius: 0.9rem;
+  }
+
+  .nested-list {
+    display: none;
+    font-size: 0.9rem;
+    max-width: 200px;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+  }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <script>
+  $(document).ready(function() {
+    $('tbody').sortable();
+  });
+
   function toggleNestedList(id) {
     var nestedList = document.getElementById(id);
     if (nestedList.style.display === "none") {
@@ -16,6 +51,7 @@
       button.style.display = "none";
     }
   }
+
   function moveEntry(rowId, entryId) {
     // Handle moving the entry here or redirect to another page to select a destination
   }
@@ -30,6 +66,7 @@
     window.location.href = `/delete/${entryId}`;
   }
 </script>
+
 <table class="table">
   <thead>
     <tr>
@@ -45,6 +82,7 @@
       <th>Ship Date</th>
       <th>Order Quantity</th>
       <th>Nested List</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -62,18 +100,19 @@
       <td>{{ job.ship_date }}</td>
       <td>{{ job.order_quantity }}</td>
       <td>
-        <button onclick="toggleNestedList('{{ table_type }}_{{ loop.index }}')">View Missing Parts</button>
+        <button class="nested-list-btn" onclick="toggleNestedList('{{ table_type }}_{{ loop.index }}')">View Missing Parts</button>
         <ul id="{{ table_type }}_{{ loop.index }}" class="nested-list">
           <li>Example item 1</li>
           <li>Example item 2</li>
           <li>Example item 3</li>
         </ul>
       </td>
-    </tr>
-    <td>
-        <button class="btn btn-primary" onclick="moveEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Move</button>
-        <button class="btn btn-warning" onclick="editEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Edit</button>
-        <button class="btn btn-danger" onclick="deleteEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Delete</button>
+      <td>
+        <div class="button-container">
+          <button class="btn btn-primary" onclick="moveEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Move</button>
+          <button class="btn btn-warning" onclick="editEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Edit</button>
+          <button class="btn btn-danger" onclick="deleteEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Delete</button>
+        </div>
       </td>
     </tr>
     {% endfor %}

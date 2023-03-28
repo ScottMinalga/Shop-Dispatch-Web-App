@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}ADD PARTS{% endblock %}
+{% block content %}
+<style>
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    label {
+      display: inline-block;
+      width: 120px;
+      text-align: left;
+      margin-right: 10px;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+  </style>
+
+<h2>Add Part</h2>
+
+{%- for category, message in get_flashed_messages(with_categories = true) %}
+    <div class = "alert alert-danger">
+      {{ message }}
+    </div>
+{%- endfor %}
+
+<form action="{{ url_for('add_part') }}" method="post">
+  <div class="form-group">
+    <label for="project_number">Project Number</label>
+    <input type="text" class="form-control" name="project_number" required>
+    <label for="job_number">Job Number</label>
+    <input type="text" class="form-control" name="job_number" required>
+    <label for="sales_order">Sales Order</label>
+    <input type="text" class="form-control" name="sales_order" required>
+    <label for="vendor_name">Vendor Name</label>
+    <input type="text" class="form-control" name="vendor_name" required>
+    <label for="status">Status</label>
+    <input type="text" class="form-control" name="status" required>
+    <label for="ship_date">Ship Date</label>
+    <input type="date" class="form-control" name="ship_date" required>
+    <label for="order_quantity">Order Quantity</label>
+    <input type="text" class="form-control" name="order_quantity" required>
+    <label for="notes">Notes</label>
+    <input type="text" class="form-control" name="notes" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Add Part</button>
+</form>
+{% endblock %}
+
+
+
+

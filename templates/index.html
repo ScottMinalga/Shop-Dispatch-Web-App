@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Home Page{% endblock %}
 {% block content %}
+{%- for category, message in get_flashed_messages(with_categories = true) %}
+    <div class = "alert alert-danger">
+      {{ message }}
+    </div>
+{%- endfor %}
 <h1>Marubeni Dispatch System</h1>
 <br>
 <p>Welcome to the new Marubeni Dispatch System</p>
