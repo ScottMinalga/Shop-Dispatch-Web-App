@@ -1,6 +1,23 @@
 {% extends "base.html" %}
 {% from "_macros.html" import render_table %}
+<style>
+  .triangle {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  display: inline-block;
+  margin-left: 5px;
+}
 
+.green-triangle {
+  border-bottom: 16px solid green;
+}
+
+.red-triangle {
+  border-top: 16px solid red;
+}
+</style>
 {% block content %}
 <div class="container">
   <h2>Tables</h2>

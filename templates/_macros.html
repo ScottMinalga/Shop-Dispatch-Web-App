@@ -42,14 +42,6 @@
     } else {
       nestedList.style.display = "none";
     }
-  #make the button hide when the list is shown - todo
-  function hideButton(id) {
-    var button = document.getElementById(id);
-    if (button.style.display === "none") {
-      button.style.display = "block";
-    } else {
-      button.style.display = "none";
-    }
   }
 
   function moveEntry(rowId, entryId) {
@@ -81,6 +73,7 @@
       <th>Order Date</th>
       <th>Ship Date</th>
       <th>Order Quantity</th>
+      <th>Stock Status</th> <!-- Add this line to create a new header for the stock status -->
       <th>Nested List</th>
       <th>Actions</th>
     </tr>
