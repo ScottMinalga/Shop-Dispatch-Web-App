@@ -7,6 +7,14 @@
     } else {
       nestedList.style.display = "none";
     }
+  #make the button hide when the list is shown - todo
+  function hideButton(id) {
+    var button = document.getElementById(id);
+    if (button.style.display === "none") {
+      button.style.display = "block";
+    } else {
+      button.style.display = "none";
+    }
   }
   function moveEntry(rowId, entryId) {
     // Handle moving the entry here or redirect to another page to select a destination
