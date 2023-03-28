@@ -98,6 +98,7 @@ class archive(db.Model):
 
 class parts(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
+    part_number = db.Column(db.String(100))
     project_number = db.Column(db.String(100))
     job_number = db.Column(db.String(100))
     sales_order = db.Column(db.String(100))
@@ -106,8 +107,11 @@ class parts(db.Model):
     notes = db.Column(db.String(500))
     ship_date = db.Column(db.String(100))
     order_quantity = db.Column(db.String(100))
+    order_date = db.Column(db.String(100))
+    recieved_date = db.Column(db.String(100))
 
-    def __init__(self, project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity):
+    def __init__(self,part_number, project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity, order_date, recieved_date):
+        self.part_number = part_number
         self.project_number = project_number
         self.job_number = job_number
         self.sales_order = sales_order
@@ -116,6 +120,8 @@ class parts(db.Model):
         self.notes = notes
         self.ship_date = ship_date
         self.order_quantity = order_quantity
+        self.order_date = order_date
+        self.recieved_date = recieved_date
 
 class User(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
