@@ -31,7 +31,15 @@
 {%- endfor %}
 
 <form action="{{ url_for('add_part') }}" method="post">
+
+  
   <div class="form-group">
+    <label for="order_date">Order Date</label>
+    <input type="date" class="form-control" name="order_date" required>
+    <label for="received_date">Received Date</label>
+    <input type="date" class="form-control" name="received_date" required><br>
+    <label for="ship_date">Ship Date</label>
+    <input type="date" class="form-control" name="ship_date" required>
     <label for="part_number">Part Number</label>
     <input type="text" class="form-control" name="part_number" required>
     <label for="project_number">Project Number</label>
@@ -44,16 +52,10 @@
     <input type="text" class="form-control" name="vendor_name" required>
     <label for="status">Status</label>
     <input type="text" class="form-control" name="status" required>
-    <label for="ship_date">Ship Date</label>
-    <input type="date" class="form-control" name="ship_date" required>
     <label for="order_quantity">Order Quantity</label>
     <input type="text" class="form-control" name="order_quantity" required>
     <label for="notes">Notes</label>
     <input type="text" class="form-control" name="notes" required>
-    <label for="order_date">Order Date</label>
-    <input type="date" class="form-control" name="order_date" required>
-    <label for="received_date">Received Date</label>
-    <input type="date" class="form-control" name="received_date" required>
   </div>
   <button type="submit" class="btn btn-primary">Add Part</button>
 </form>
