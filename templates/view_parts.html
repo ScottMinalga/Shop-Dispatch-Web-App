@@ -2,9 +2,12 @@
 
 {% block content %}
 <h1>Parts</h1>
+
+<!-- Table section -->
 <table class="table">
   <thead>
     <tr>
+      <th>Part Number</th>
       <th>Project Number</th>
       <th>Job Number</th>
       <th>Sales Order</th>
@@ -13,6 +16,17 @@
       <th>Notes</th>
       <th>Ship Date</th>
       <th>Order Quantity</th>
+    </tr>
+    <tr>
+      <th><input type="text" id="filterPartNumber" placeholder="Filter"></th>
+      <th><input type="text" id="filterProjectNumber" placeholder="Filter"></th>
+      <th><input type="text" id="filterJobNumber" placeholder="Filter"></th>
+      <th><input type="text" id="filterSalesOrder" placeholder="Filter"></th>
+      <th><input type="text" id="filterVendorName" placeholder="Filter"></th>
+      <th><input type="text" id="filterStatus" placeholder="Filter"></th>
+      <th><input type="text" id="filterNotes" placeholder="Filter"></th>
+      <th><input type="text" id="filterShipDate" placeholder="Filter"></th>
+      <th><input type="text" id="filterOrderQuantity" placeholder="Filter"></th>
     </tr>
   </thead>
   <tbody>
@@ -30,4 +44,36 @@
     {% endfor %}
   </tbody>
 </table>
+
+<!-- JavaScript for filtering -->
+<script>
+  function filterTable() {
+    const filterValues = [
+      $("#filterPartNumber").val().toLowerCase(),
+      $("#filterProjectNumber").val().toLowerCase(),
+      $("#filterJobNumber").val().toLowerCase(),
+      $("#filterSalesOrder").val().toLowerCase(),
+      $("#filterVendorName").val().toLowerCase(),
+      $("#filterStatus").val().toLowerCase(),
+      $("#filterNotes").val().toLowerCase(),
+      $("#filterShipDate").val().toLowerCase(),
+      $("#filterOrderQuantity").val().toLowerCase()
+    ];
+
+    $("table tbody tr").filter(function() {
+      let show = true;
+      $(this).find("td").each(function(index) {
+        const text = $(this).text().toLowerCase();
+        if (text.indexOf(filterValues[index]) === -1) {
+          show = false;
+          return false; // break out of the loop
+        }
+      });
+      $(this).toggle(show);
+    });
+  }
+
+  // Attach filterTable function to input events
+  $("input[id^='filter']").on("input", filterTable);
+</script>
 {% endblock %}

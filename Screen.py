@@ -228,7 +228,22 @@ def user():
         flash("You are not logged in!")
         return redirect(url_for("login"))
     
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "username" not in session:
+            flash("You need to be logged in to access this page.", "danger")
+            return redirect(url_for("login"))
+        user = User.query.filter_by(username=session["username"]).first()
+        if not user.is_admin:
+            flash("You don't have permission to access this page.", "danger")
+            return redirect(url_for("home"))
+        return f(*args, **kwargs)
+    return decorated_function
+    
+    
 @app.route("/add", methods=["POST", "GET"])
+@admin_required
 def add():
     ASM01_data = ASM01.query.all()
     ASM02_data = ASM02.query.all()
@@ -305,6 +320,7 @@ def add():
     return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
    
 @app.route("/add_part", methods=["GET", "POST"])
+@admin_required
 def add_part():
     if request.method == "POST":
         project_number = request.form["project_number"]
