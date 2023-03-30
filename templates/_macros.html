@@ -1,5 +1,12 @@
 {% macro render_table(data, table_type) %}
+
 <style>
+
+  input.table-filter {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
   .button-container {
     display: flex;
     justify-content: space-around;
@@ -11,20 +18,21 @@
     border-radius: 0.2rem;
   }
 
-  .nested-list-btn {
-    font-size: 0.8rem;
-    padding: 0.0rem 1rem;
-    border-radius: 0.9rem;
+  .triangle {
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    display: inline-block;
+    margin-left: 5px;
   }
-
-  .nested-list {
-    display: none;
-    font-size: 0.9rem;
-    max-width: 200px;
-    padding: 0.5rem;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
+  
+  .green-triangle {
+    border-bottom: 16px solid green;
+  }
+  
+  .red-triangle {
+    border-top: 16px solid red;
   }
 </style>
 
@@ -34,15 +42,6 @@
   $(document).ready(function() {
     $('tbody').sortable();
   });
-
-  function toggleNestedList(id) {
-    var nestedList = document.getElementById(id);
-    if (nestedList.style.display === "none") {
-      nestedList.style.display = "block";
-    } else {
-      nestedList.style.display = "none";
-    }
-  }
 
   function moveEntry(rowId, entryId) {
     // Handle moving the entry here or redirect to another page to select a destination
@@ -59,46 +58,82 @@
   }
 </script>
 
-<table class="table">
+<table class="table" style="width: 110%; margin-left: -50px;">
   <thead>
     <tr>
-      <th>Project Number</th>
-      <th>Job Number</th>
-      <th>Sales Order</th>
-      <th>Customer Name</th>
-      <th>Builder</th>
-      <th>Status</th>
-      <th>Notes</th>
-      <th>Due Date</th>
-      <th>Order Date</th>
-      <th>Ship Date</th>
-      <th>Order Quantity</th>
-      <th>Stock Status</th> <!-- Add this line to create a new header for the stock status -->
-      <th>Nested List</th>
-      <th>Actions</th>
+      <th>
+        Project Number
+        <input type="text" class="table-filter" placeholder="Filter" data-column="project_number">
+      </th>
+      <th>
+        Job Number
+        <input type="text" class="table-filter" placeholder="Filter" data-column="job_number">
+      </th>
+      <th>
+        Sales Order
+        <input type="text" class="table-filter" placeholder="Filter" data-column="sales_order">
+      </th>
+      <th>
+        Customer Name
+        <input type="text" class="table-filter" placeholder="Filter" data-column="customer_name">
+      </th>
+      <th>
+        Builder
+        <input type="text" class="table-filter" placeholder="Filter" data-column="builder">
+      </th>
+      <th>
+        Status
+        <input type="text" class="table-filter" placeholder="Filter" data-column="status">
+      </th>
+      <th>
+        Notes
+        <input type="text" class="table-filter" placeholder="Filter" data-column="notes">
+      </th>
+      <th>
+        Due Date
+        <input type="text" class="table-filter" placeholder="Filter" data-column="due_date">
+      </th>
+      <th>
+        Order Date
+        <input type="text" class="table-filter" placeholder="Filter" data-column="order_date">
+      </th>
+      <th>
+        Ship Date
+        <input type="text" class="table-filter" placeholder="Filter" data-column="ship_date">
+      </th>
+      <th>
+        Order Quantity
+        <input type="text" class="table-filter" placeholder="Filter" data-column="order_quantity">
+      </th>
+      <th>
+        Stock Status
+        <input type="text" class="table-filter" placeholder="Filter" data-column="stock_status">
+      </th>
+      <th>
+        Actions
+      </th>
     </tr>
   </thead>
   <tbody>
     {% for job in data %}
     <tr>
-      <td>{{ job.project_number }}</td>
-      <td>{{ job.job_number }}</td>
-      <td>{{ job.sales_order }}</td>
-      <td>{{ job.customer_name }}</td>
-      <td>{{ job.builder }}</td>
-      <td>{{ job.status }}</td>
-      <td>{{ job.notes }}</td>
-      <td>{{ job.due_date }}</td>
-      <td>{{ job.order_date }}</td>
-      <td>{{ job.ship_date }}</td>
-      <td>{{ job.order_quantity }}</td>
-      <td>
-        <button class="nested-list-btn" onclick="toggleNestedList('{{ table_type }}_{{ loop.index }}')">View Missing Parts</button>
-        <ul id="{{ table_type }}_{{ loop.index }}" class="nested-list">
-          <li>Example item 1</li>
-          <li>Example item 2</li>
-          <li>Example item 3</li>
-        </ul>
+      <td data-column="project_number">{{ job.project_number }}</td>
+      <td data-column="job_number">{{ job.job_number }}</td>
+      <td data-column="sales_order">{{ job.sales_order }}</td>
+      <td data-column="customer_name">{{ job.customer_name }}</td>
+      <td data-column="builder">{{ job.builder }}</td>
+      <td data-column="status">{{ job.status }}</td>
+      <td data-column="notes">{{ job.notes }}</td>
+      <td data-column="due_date">{{ job.due_date }}</td>
+      <td data-column="order_date">{{ job.order_date }}</td>
+      <td data-column="ship_date">{{ job.ship_date }}</td>
+      <td data-column="order_quantity">{{ job.order_quantity }}</td>
+      <td data-column="stock_status">
+        {% if job.all_parts_in_stock %}
+          <div class="triangle green-triangle"></div>
+        {% else %}
+          <div class="triangle red-triangle"></div>
+        {% endif %}
       </td>
       <td>
         <div class="button-container">
@@ -111,4 +146,20 @@
     {% endfor %}
   </tbody>
 </table>
+<script>
+  // ... existing script
+
+  // Add table filtering
+  $(document).ready(function() {
+    $('.table-filter').on('input', function() {
+      let column = $(this).data('column');
+      let filterValue = $(this).val().toLowerCase();
+
+      $('tbody tr').filter(function() {
+        let cellValue = $(this).find('td[data-column="' + column + '"]').text().toLowerCase();
+        $(this).toggle(cellValue.indexOf(filterValue) > -1);
+      });
+    });
+  });
+</script>
 {% endmacro %}

@@ -1,5 +1,8 @@
 {% extends "base.html" %}
-{% block title %}ADD PARTS{% endblock %}
+{% block title %}
+  ADD PARTS
+  <meta http-equiv="refresh" content="300">
+{% endblock %}
 {% block content %}
 <style>
     form {
@@ -51,13 +54,13 @@
     </div>
     <div class="input-label-container">
       <label for="received_date">Received Date</label>
-      <input type="date" name="received_date" required>
+      <input type="date" name="received_date">
     </div>
   </div>
   <div class="form-group date-inputs">
     <div class="input-label-container">
       <label for="ship_date">Ship Date</label>
-      <input type="date" name="ship_date" required>
+      <input type="date" name="ship_date">
     </div>
   </div>
   <div class="form-group">
@@ -90,7 +93,7 @@
   </div>
   <div class="form-group">
     <label for="notes">Notes</label>
-    <textarea name="notes" id="notes" cols="30" rows="2" required></textarea>
+    <textarea name="notes" id="notes" cols="30" rows="2"></textarea>
   </div>
   <input type="submit" value="Add Part" />
 </form>
