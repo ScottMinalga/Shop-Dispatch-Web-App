@@ -3,6 +3,9 @@ from datetime import timedelta
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from flask_wtf import FlaskForm
+from wtforms import StringField, DateField, TextAreaField, IntegerField, SelectField
+from wtforms.validators import DataRequired
 
 # Create instance of the app
 app = Flask(__name__)
@@ -108,9 +111,9 @@ class parts(db.Model):
     ship_date = db.Column(db.String(100))
     order_quantity = db.Column(db.String(100))
     order_date = db.Column(db.String(100))
-    recieved_date = db.Column(db.String(100))
+    received_date = db.Column(db.String(100))
 
-    def __init__(self,part_number, project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity, order_date, recieved_date):
+    def __init__(self,part_number, project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity, order_date, received_date):
         self.part_number = part_number
         self.project_number = project_number
         self.job_number = job_number
@@ -121,7 +124,7 @@ class parts(db.Model):
         self.ship_date = ship_date
         self.order_quantity = order_quantity
         self.order_date = order_date
-        self.recieved_date = recieved_date
+        self.received_date = received_date
 
 class User(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
@@ -137,6 +140,19 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+    
+class AddPartForm(FlaskForm):
+    order_date = DateField('Order Date', validators=[DataRequired()])
+    received_date = DateField('Received Date', validators=[DataRequired()])
+    ship_date = DateField('Ship Date', validators=[DataRequired()])
+    part_number = StringField('Part Number', validators=[DataRequired()])
+    project_number = StringField('Project Number', validators=[DataRequired()])
+    job_number = StringField('Job Number', validators=[DataRequired()])
+    sales_order = StringField('Sales Order', validators=[DataRequired()])
+    vendor_name = StringField('Vendor Name', validators=[DataRequired()])
+    status = SelectField('Status', choices=[('choice1', 'Choice 1'), ('choice2', 'Choice 2'), ('choice3', 'Choice 3')])
+    order_quantity = IntegerField('Order Quantity', validators=[DataRequired()])
+    notes = TextAreaField('Notes')
 
 
 # we can use html to pass variable through
@@ -322,7 +338,9 @@ def add():
 @app.route("/add_part", methods=["GET", "POST"])
 @admin_required
 def add_part():
+    form = AddPartForm()
     if request.method == "POST":
+        part_number = request.form["part_number"]
         project_number = request.form["project_number"]
         job_number = request.form["job_number"]
         sales_order = request.form["sales_order"]
@@ -331,8 +349,10 @@ def add_part():
         notes = request.form["notes"]
         ship_date = request.form["ship_date"]
         order_quantity = request.form["order_quantity"]
+        order_date = request.form["order_date"]
+        received_date = request.form["received_date"]
 
-        part = parts(project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity)
+        part = Parts(part_number, project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity, order_date, received_date)
 
         db.session.add(part)
         db.session.commit()
@@ -340,7 +360,7 @@ def add_part():
         flash("Part added successfully!")
         return redirect(url_for("add_part"))
 
-    return render_template("add_part.html")
+    return render_template("add_part.html", form=form)
 
 @app.route("/view_parts")
 def view_parts():

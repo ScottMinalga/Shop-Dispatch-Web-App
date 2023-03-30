@@ -20,13 +20,13 @@
 
   <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
-      {{ render_table(ASM01_data, 'ASM01') }}
+      {{ render_table(ASM01_data, 'ASM01', parts_list) }}
     </div>
     <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
-      {{ render_table(ASM02_data, 'ASM02') }}
+      {{ render_table(ASM02_data, 'ASM02', parts_list) }}
     </div>
     <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
-      {{ render_table(archive_data, 'archive') }}
+      {{ render_table(archive_data, 'archive', parts_list) }}
     </div>
   </div>
 </div>

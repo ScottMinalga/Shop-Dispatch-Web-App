@@ -1,7 +1,7 @@
-{% macro render_table(data, table_type) %}
+{% macro render_table(data, table_type, parts_list) %}
+  <table class="table table-bordered table-hover">
 
 <style>
-
   input.table-filter {
     width: 100%;
     margin-bottom: 0.5rem;
@@ -35,7 +35,6 @@
     border-top: 16px solid red;
   }
 </style>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <script>
@@ -57,61 +56,17 @@
     window.location.href = `/delete/${entryId}`;
   }
 </script>
-
-<table class="table" style="width: 110%; margin-left: -50px;">
+<table class="table" style="width: 225%; margin-left: -700px;">
   <thead>
     <tr>
-      <th>
-        Project Number
-        <input type="text" class="table-filter" placeholder="Filter" data-column="project_number">
-      </th>
-      <th>
-        Job Number
-        <input type="text" class="table-filter" placeholder="Filter" data-column="job_number">
-      </th>
-      <th>
-        Sales Order
-        <input type="text" class="table-filter" placeholder="Filter" data-column="sales_order">
-      </th>
-      <th>
-        Customer Name
-        <input type="text" class="table-filter" placeholder="Filter" data-column="customer_name">
-      </th>
-      <th>
-        Builder
-        <input type="text" class="table-filter" placeholder="Filter" data-column="builder">
-      </th>
-      <th>
-        Status
-        <input type="text" class="table-filter" placeholder="Filter" data-column="status">
-      </th>
-      <th>
-        Notes
-        <input type="text" class="table-filter" placeholder="Filter" data-column="notes">
-      </th>
-      <th>
-        Due Date
-        <input type="text" class="table-filter" placeholder="Filter" data-column="due_date">
-      </th>
-      <th>
-        Order Date
-        <input type="text" class="table-filter" placeholder="Filter" data-column="order_date">
-      </th>
-      <th>
-        Ship Date
-        <input type="text" class="table-filter" placeholder="Filter" data-column="ship_date">
-      </th>
-      <th>
-        Order Quantity
-        <input type="text" class="table-filter" placeholder="Filter" data-column="order_quantity">
-      </th>
-      <th>
-        Stock Status
-        <input type="text" class="table-filter" placeholder="Filter" data-column="stock_status">
-      </th>
-      <th>
-        Actions
-      </th>
+      {% for header in ['Project Number', 'Job Number', 'Sales Order', 'Customer Name', 'Builder', 'Status', 'Notes', 'Due Date', 'Order Date', 'Ship Date', 'Order Quantity', 'Stock Status', 'Actions'] %}
+        <th>
+          {{ header }}
+          {% if header != 'Actions' %}
+            <input type="text" class="table-filter" placeholder="Filter" data-column="{{ header | lower | replace(' ', '_') }}">
+          {% endif %}
+        </th>
+      {% endfor %}
     </tr>
   </thead>
   <tbody>
@@ -130,13 +85,18 @@
       <td data-column="order_quantity">{{ job.order_quantity }}</td>
       <td data-column="stock_status">
         {% if job.all_parts_in_stock %}
-          <div class="triangle green-triangle"></div>
+          {% if job.job_number in parts_list %}
+            <div class="triangle red-triangle"></div>
+          {% else %}
+            <div class="triangle green-triangle"></div>
+          {% endif %}
         {% else %}
           <div class="triangle red-triangle"></div>
         {% endif %}
       </td>
       <td>
         <div class="button-container">
+          <button class="button-container">
           <button class="btn btn-primary" onclick="moveEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Move</button>
           <button class="btn btn-warning" onclick="editEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Edit</button>
           <button class="btn btn-danger" onclick="deleteEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Delete</button>
