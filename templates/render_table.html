@@ -1,0 +1,36 @@
+{% macro render_table(data) %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Project Number</th>
+        <th>Job Number</th>
+        <th>Sales Order</th>
+        <th>Customer Name</th>
+        <th>Builder</th>
+        <th>Status</th>
+        <th>Notes</th>
+        <th>Due Date</th>
+        <th>Order Date</th>
+        <th>Ship Date</th>
+        <th>Order Quantity</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in data %}
+        <tr>
+          <td>{{ job.project_number }}</td>
+          <td>{{ job.job_number }}</td>
+          <td>{{ job.sales_order }}</td>
+          <td>{{ job.customer_name }}</td>
+          <td>{{ job.builder }}</td>
+          <td>{{ job.status }}</td>
+          <td>{{ job.notes }}</td>
+          <td>{{ job.due_date }}</td>
+          <td>{{ job.order_date }}</td>
+          <td>{{ job.ship_date }}</td>
+          <td>{{ job.order_quantity }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}

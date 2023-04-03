@@ -1,48 +1,65 @@
 {% extends "base.html" %}
-{% from "_macros.html" import render_table %}
-{% block content %}
-<head>
-  <meta http-equiv="refresh" content="300">
-</head>
-<div class="container">
-  <h2>SHOP JOBS</h2>
-  <ul class="nav nav-tabs" id="myTabs" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link active" id="ASM01-tab" data-toggle="tab" href="#ASM01" role="tab" aria-controls="ASM01" aria-selected="true">ASM01</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02" role="tab" aria-controls="ASM02" aria-selected="false">ASM02</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive" role="tab" aria-controls="archive" aria-selected="false">Archive</a>
-    </li>
-  </ul>
 
-  <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
-      {{ render_table(ASM01_data, 'ASM01', parts_list) }}
-    </div>
-    <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
-      {{ render_table(ASM02_data, 'ASM02', parts_list) }}
-    </div>
-    <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
-      {{ render_table(archive_data, 'archive', parts_list) }}
+{% macro render_table(data) %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Project Number</th>
+        <th>Job Number</th>
+        <th>Sales Order</th>
+        <th>Customer Name</th>
+        <th>Builder</th>
+        <th>Status</th>
+        <th>Notes</th>
+        <th>Due Date</th>
+        <th>Order Date</th>
+        <th>Ship Date</th>
+        <th>Order Quantity</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in data %}
+        <tr>
+          <td>{{ job.project_number }}</td>
+          <td>{{ job.job_number }}</td>
+          <td>{{ job.sales_order }}</td>
+          <td>{{ job.customer_name }}</td>
+          <td>{{ job.builder }}</td>
+          <td>{{ job.status }}</td>
+          <td>{{ job.notes }}</td>
+          <td>{{ job.due_date }}</td>
+          <td>{{ job.order_date }}</td>
+          <td>{{ job.ship_date }}</td>
+          <td>{{ job.order_quantity }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}
+
+{% block content %}
+  <div class="container mt-5">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" id="ASM01-tab" data-bs-toggle="tab" href="#ASM01">ASM01</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="ASM02-tab" data-bs-toggle="tab" href="#ASM02">ASM02</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="archive-tab" data-bs-toggle="tab" href="#archive">Archive</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
+        {{ render_table(ASM01_data) }}
+      </div>
+      <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
+        {{ render_table(ASM02_data) }}
+      </div>
+      <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
+        {{ render_table(archive_data) }}
+      </div>
     </div>
   </div>
-</div>
-<script>
-  // Save the last active tab to local storage
-  $(document).ready(function() {
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-      localStorage.setItem('activeTab', $(e.target).attr('href'));
-    });
-
-    // Get the last active tab from local storage
-    let activeTab = localStorage.getItem('activeTab');
-    if (activeTab) {
-      // Show the last active tab
-      $('#myTabs a[href="' + activeTab + '"]').tab('show');
-    }
-  });
-</script>
 {% endblock %}

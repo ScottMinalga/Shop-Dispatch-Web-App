@@ -1,23 +1,19 @@
 {% macro render_table(data, table_type, parts_list) %}
-  <table class="table table-bordered table-hover">
 
 <style>
   input.table-filter {
     width: 100%;
     margin-bottom: 0.5rem;
   }
-
   .button-container {
     display: flex;
     justify-content: space-around;
   }
-
   .table .btn {
     font-size: 0.6rem;
     padding: 0.2rem 0.4rem;
     border-radius: 0.2rem;
   }
-
   .triangle {
     width: 0;
     height: 0;
@@ -26,77 +22,61 @@
     display: inline-block;
     margin-left: 5px;
   }
-  
   .green-triangle {
     border-bottom: 16px solid green;
   }
-  
   .red-triangle {
     border-top: 16px solid red;
   }
 </style>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-<script>
-  $(document).ready(function() {
-    $('tbody').sortable();
-  });
 
-  function moveEntry(rowId, entryId) {
-    // Handle moving the entry here or redirect to another page to select a destination
-  }
+{% set headers = ['Project Number', 'Job Number', 'Sales Order', 'Customer Name', 'Builder', 'Status', 'Notes', 'Due Date', 'Order Date', 'Ship Date', 'Order Quantity', 'Stock Status', 'Actions'] %}
 
-  function editEntry(rowId, entryId) {
-    // Redirect to the edit page with the entry ID, e.g., /edit/<entryId>
-    window.location.href = `/edit/${entryId}`;
-  }
-
-  function deleteEntry(rowId, entryId) {
-    // Redirect to the delete page with the entry ID, e.g., /delete/<entryId>
-    window.location.href = `/delete/${entryId}`;
-  }
-</script>
-<table class="table" style="width: 225%; margin-left: -700px;">
+<table class="table table-striped">
   <thead>
     <tr>
-      {% for header in ['Project Number', 'Job Number', 'Sales Order', 'Customer Name', 'Builder', 'Status', 'Notes', 'Due Date', 'Order Date', 'Ship Date', 'Order Quantity', 'Stock Status', 'Actions'] %}
+      {% for header in headers %}
+        <th>{{ header }}</th>
+      {% endfor %}
+    </tr>
+    <tr>
+      {% for header in headers if header != 'Actions' %}
         <th>
-          {{ header }}
-          {% if header != 'Actions' %}
-            <input type="text" class="table-filter" placeholder="Filter" data-column="{{ header | lower | replace(' ', '_') }}">
-          {% endif %}
+          <input type="text" class="table-filter" placeholder="Filter" data-column="{{ header | lower | replace(' ', '_') }}">
         </th>
+      {% else %}
+        <th></th>
       {% endfor %}
     </tr>
   </thead>
+
   <tbody>
     {% for job in data %}
-    <tr>
-      <td data-column="project_number">{{ job.project_number }}</td>
-      <td data-column="job_number">{{ job.job_number }}</td>
-      <td data-column="sales_order">{{ job.sales_order }}</td>
-      <td data-column="customer_name">{{ job.customer_name }}</td>
-      <td data-column="builder">{{ job.builder }}</td>
-      <td data-column="status">{{ job.status }}</td>
-      <td data-column="notes">{{ job.notes }}</td>
-      <td data-column="due_date">{{ job.due_date }}</td>
-      <td data-column="order_date">{{ job.order_date }}</td>
-      <td data-column="ship_date">{{ job.ship_date }}</td>
-      <td data-column="order_quantity">{{ job.order_quantity }}</td>
-      <td data-column="stock_status">
-        {% if job.all_parts_in_stock %}
-          {% if job.job_number in parts_list %}
+      {% set job_numbers = parts_list | map(attribute='job_number') | list %}
+      <tr>
+        <td data-column="project_number">{{ job.project_number }}</td>
+        <td data-column="job_number">{{ job.job_number }}</td>
+        <td data-column="sales_order">{{ job.sales_order }}</td>
+        <td data-column="customer_name">{{ job.customer_name }}</td>
+        <td data-column="builder">{{ job.builder }}</td>
+        <td data-column="status">{{ job.status }}</td>
+        <td data-column="notes">{{ job.notes }}</td>
+        <td data-column="due_date">{{ job.due_date }}</td>
+        <td data-column="order_date">{{ job.order_date }}</td>
+        <td data-column="ship_date">{{ job.ship_date }}</td>
+        <td data-column="order_quantity">{{ job.order_quantity }}</td>
+        <td data-column="stock_status">
+          {% if job.job_number in job_numbers %}
             <div class="triangle red-triangle"></div>
           {% else %}
             <div class="triangle green-triangle"></div>
           {% endif %}
-        {% else %}
-          <div class="triangle red-triangle"></div>
-        {% endif %}
-      </td>
-      <td>
-        <div class="button-container">
-          <button class="button-container">
+        </td>
+        <td>
+          <div class="button-container">
           <button class="btn btn-primary" onclick="moveEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Move</button>
           <button class="btn btn-warning" onclick="editEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Edit</button>
           <button class="btn btn-danger" onclick="deleteEntry('{{ table_type }}_{{ loop.index }}', '{{ job.id }}')">Delete</button>
@@ -107,16 +87,12 @@
   </tbody>
 </table>
 <script>
-  // ... existing script
-
-  // Add table filtering
   $(document).ready(function() {
     $('.table-filter').on('input', function() {
-      let column = $(this).data('column');
       let filterValue = $(this).val().toLowerCase();
-
-      $('tbody tr').filter(function() {
-        let cellValue = $(this).find('td[data-column="' + column + '"]').text().toLowerCase();
+      let filterColumn = $(this).data('column');
+      $('tbody tr').each(function() {
+        let cellValue = $(this).find(`td[data-column="${filterColumn}"]`).text().toLowerCase();
         $(this).toggle(cellValue.indexOf(filterValue) > -1);
       });
     });
