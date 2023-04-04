@@ -4,7 +4,7 @@
 <h1>Parts</h1>
 
 <!-- Table section -->
-<table class="table" style="width: 5%; margin-left: 0px;">
+<table class="table">
   <thead>
     <tr>
       <th>Part Number</th>
@@ -32,6 +32,7 @@
   <tbody>
     {% for part in parts %}
     <tr>
+      <td>{{ part.part_number }}</td>
       <td>{{ part.project_number }}</td>
       <td>{{ part.job_number }}</td>
       <td>{{ part.sales_order }}</td>
@@ -48,32 +49,48 @@
 <!-- JavaScript for filtering -->
 <script>
   function filterTable() {
-    const filterValues = [
-      $("#filterPartNumber").val().toLowerCase(),
-      $("#filterProjectNumber").val().toLowerCase(),
-      $("#filterJobNumber").val().toLowerCase(),
-      $("#filterSalesOrder").val().toLowerCase(),
-      $("#filterVendorName").val().toLowerCase(),
-      $("#filterStatus").val().toLowerCase(),
-      $("#filterNotes").val().toLowerCase(),
-      $("#filterShipDate").val().toLowerCase(),
-      $("#filterOrderQuantity").val().toLowerCase()
-    ];
+  const filterValues = {
+    partNumber: $("#filterPartNumber").val().toLowerCase(),
+    projectNumber: $("#filterProjectNumber").val().toLowerCase(),
+    jobNumber: $("#filterJobNumber").val().toLowerCase(),
+    salesOrder: $("#filterSalesOrder").val().toLowerCase(),
+    vendorName: $("#filterVendorName").val().toLowerCase(),
+    status: $("#filterStatus").val().toLowerCase(),
+    notes: $("#filterNotes").val().toLowerCase(),
+    shipDate: $("#filterShipDate").val().toLowerCase(),
+    orderQuantity: $("#filterOrderQuantity").val().toLowerCase()
+  };
 
-    $("table tbody tr").filter(function() {
-      let show = true;
-      $(this).find("td").each(function(index) {
-        const text = $(this).text().toLowerCase();
-        if (text.indexOf(filterValues[index]) === -1) {
-          show = false;
-          return false; // break out of the loop
-        }
-      });
-      $(this).toggle(show);
-    });
-  }
+  $("table tbody tr").each(function() {
+    let show = true;
 
-  // Attach filterTable function to input events
-  $("input[id^='filter']").on("input", filterTable);
+    const partNumber = $(this).find("td:eq(0)").text().toLowerCase();
+    const projectNumber = $(this).find("td:eq(1)").text().toLowerCase();
+    const jobNumber = $(this).find("td:eq(2)").text().toLowerCase();
+    const salesOrder = $(this).find("td:eq(3)").text().toLowerCase();
+    const vendorName = $(this).find("td:eq(4)").text().toLowerCase();
+    const status = $(this).find("td:eq(5)").text().toLowerCase();
+    const notes = $(this).find("td:eq(6)").text().toLowerCase();
+    const shipDate = $(this).find("td:eq(7)").text().toLowerCase();
+    const orderQuantity = $(this).find("td:eq(8)").text().toLowerCase();
+
+    if (partNumber.indexOf(filterValues.partNumber) === -1 ||
+        projectNumber.indexOf(filterValues.projectNumber) === -1 ||
+        jobNumber.indexOf(filterValues.jobNumber) === -1 ||
+        salesOrder.indexOf(filterValues.salesOrder) === -1 ||
+        vendorName.indexOf(filterValues.vendorName) === -1 ||
+        status.indexOf(filterValues.status) === -1 ||
+        notes.indexOf(filterValues.notes) === -1 ||
+        shipDate.indexOf(filterValues.shipDate) === -1 ||
+        orderQuantity.indexOf(filterValues.orderQuantity) === -1) {
+      show = false;
+    }
+
+    $(this).toggle(show);
+  });
+}
+
+// Attach filterTable function to input events
+$("input[id^='filter']").on("input", filterTable);
 </script>
 {% endblock %}

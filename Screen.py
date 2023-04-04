@@ -165,7 +165,18 @@ def view():
     ASM01_data = ASM01.query.all()
     ASM02_data = ASM02.query.all()
     archive_data = archive.query.all()
-    return render_template('render_table_with_tabs.html', ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
+
+    # Get all parts and create a set of unique job numbers
+    all_parts = parts.query.all()
+    parts_job_numbers = {part.job_number for part in all_parts}
+
+    return render_template(
+        'render_table_with_tabs.html',
+        ASM01_data=ASM01_data,
+        ASM02_data=ASM02_data,
+        archive_data=archive_data,
+        parts_job_numbers=parts_job_numbers,
+    )
 
 @app.route("/edit/<string:table_name>/<int:entry_id>", methods=["GET", "POST"])
 def edit_entry(table_name, entry_id):
@@ -222,27 +233,13 @@ def delete_entry(table_name, entry_id):
     flash("Entry deleted successfully!")
     return redirect(url_for("view"))
 
-@app.route("/user", methods=["POST", "GET"])
-def user():
-    email = None
-    if "username" in session:
-        username = session["username"]
+def has_matching_job_number(parts, job_number):
+    for part in parts:
+        if part.job_number == job_number:
+            return True
+    return False
 
-        if request.method == "POST":
-            email = request.form["email"]
-            session["email"] = email
-            found_user = User.query.filter_by(username=username).first()
-            found_user.email = email
-            db.session.commit()
-            flash("Email was saved!")
-        else:
-            if "email" in session:
-                email = session["email"]
-
-        return render_template("user.html", email=email)
-    else:
-        flash("You are not logged in!")
-        return redirect(url_for("login"))
+app.jinja_env.filters['has_matching_job_number'] = has_matching_job_number
     
 def admin_required(f):
     @wraps(f)

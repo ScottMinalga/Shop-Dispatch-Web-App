@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 
-{% macro render_table(data) %}
+{% macro render_table(data, parts_job_numbers) %}
   <table class="table table-striped">
     <thead>
       <tr>
+        <th>Triangle</th>
         <th>Project Number</th>
         <th>Job Number</th>
         <th>Sales Order</th>
@@ -20,6 +21,11 @@
     <tbody>
       {% for job in data %}
         <tr>
+          {% if job.job_number in parts_job_numbers %}
+            <td><svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="red" /></svg></td>
+          {% else %}
+            <td><svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="green" /></svg></td>
+          {% endif %}
           <td>{{ job.project_number }}</td>
           <td>{{ job.job_number }}</td>
           <td>{{ job.sales_order }}</td>
@@ -41,24 +47,24 @@
   <div class="container mt-5">
     <ul class="nav nav-tabs">
       <li class="nav-item">
-        <a class="nav-link active" id="ASM01-tab" data-bs-toggle="tab" href="#ASM01">ASM01</a>
+        <a class="nav-link active" id="ASM01-tab" data-toggle="tab" href="#ASM01">ASM01</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="ASM02-tab" data-bs-toggle="tab" href="#ASM02">ASM02</a>
+        <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02">ASM02</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="archive-tab" data-bs-toggle="tab" href="#archive">Archive</a>
+        <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive">Archive</a>
       </li>
     </ul>
     <div class="tab-content">
       <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
-        {{ render_table(ASM01_data) }}
+        {{ render_table(ASM01_data, parts_job_numbers) }}
       </div>
       <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
-        {{ render_table(ASM02_data) }}
+        {{ render_table(ASM02_data, parts_job_numbers) }}
       </div>
       <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
-        {{ render_table(archive_data) }}
+        {{ render_table(archive_data, parts_job_numbers) }}
       </div>
     </div>
   </div>
