@@ -32,15 +32,15 @@
   <tbody>
     {% for part in parts %}
     <tr>
-      <td>{{ part.part_number }}</td>
-      <td>{{ part.project_number }}</td>
-      <td>{{ part.job_number }}</td>
-      <td>{{ part.sales_order }}</td>
-      <td>{{ part.vendor_name }}</td>
-      <td>{{ part.status }}</td>
-      <td>{{ part.notes }}</td>
-      <td>{{ part.ship_date }}</td>
-      <td>{{ part.order_quantity }}</td>
+      <td data-part-number="{{ part.part_number }}">{{ part.part_number }}</td>
+      <td data-project-number="{{ part.project_number }}">{{ part.project_number }}</td>
+      <td data-job-number="{{ part.job_number }}">{{ part.job_number }}</td>
+      <td data-sales-order="{{ part.sales_order }}">{{ part.sales_order }}</td>
+      <td data-vendor-name="{{ part.vendor_name }}">{{ part.vendor_name }}</td>
+      <td data-status="{{ part.status }}">{{ part.status }}</td>
+      <td data-notes="{{ part.notes }}">{{ part.notes }}</td>
+      <td data-ship-date="{{ part.ship_date }}">{{ part.ship_date }}</td>
+      <td data-order-quantity="{{ part.order_quantity }}">{{ part.order_quantity }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -63,28 +63,15 @@
 
   $("table tbody tr").each(function() {
     let show = true;
-
-    const partNumber = $(this).find("td:eq(0)").text().toLowerCase();
-    const projectNumber = $(this).find("td:eq(1)").text().toLowerCase();
-    const jobNumber = $(this).find("td:eq(2)").text().toLowerCase();
-    const salesOrder = $(this).find("td:eq(3)").text().toLowerCase();
-    const vendorName = $(this).find("td:eq(4)").text().toLowerCase();
-    const status = $(this).find("td:eq(5)").text().toLowerCase();
-    const notes = $(this).find("td:eq(6)").text().toLowerCase();
-    const shipDate = $(this).find("td:eq(7)").text().toLowerCase();
-    const orderQuantity = $(this).find("td:eq(8)").text().toLowerCase();
-
-    if (partNumber.indexOf(filterValues.partNumber) === -1 ||
-        projectNumber.indexOf(filterValues.projectNumber) === -1 ||
-        jobNumber.indexOf(filterValues.jobNumber) === -1 ||
-        salesOrder.indexOf(filterValues.salesOrder) === -1 ||
-        vendorName.indexOf(filterValues.vendorName) === -1 ||
-        status.indexOf(filterValues.status) === -1 ||
-        notes.indexOf(filterValues.notes) === -1 ||
-        shipDate.indexOf(filterValues.shipDate) === -1 ||
-        orderQuantity.indexOf(filterValues.orderQuantity) === -1) {
-      show = false;
-    }
+    
+    $(this).find("td").each(function(index) {
+      const text = $(this).text().toLowerCase();
+      const filterValue = Object.values(filterValues)[index];
+      if (filterValue && text.indexOf(filterValue) === -1) {
+        show = false;
+        return false; // break out of the loop
+      }
+    });
 
     $(this).toggle(show);
   });
