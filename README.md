@@ -8,7 +8,7 @@ View a list of all parts
 Admin and login systems
 
 Installation
-Clone the repository: git clone https://github.com/username/asm-project-management.git
+Clone the repository: git clone https://github.com/ScottMinalga/Shop-Dispatch-Web-App.git
 Install dependencies: pip install -r requirements.txt
 Create a database: python manage.py createdb
 
