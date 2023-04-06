@@ -46,56 +46,61 @@
     </div>
 {%- endfor %}
 
-<form action="{{ url_for('add_part') }}" method="post">
-  {{ form.csrf_token }}
+<form action="/add_part" method="post">
   <div class="form-group date-inputs">
     <div class="input-label-container">
-      {{ form.order_date.label }}
-      {{ form.order_date }}
+      <label for="order_date">Order Date</label>
+      <input type="date" name="order_date" id="order_date" required>
     </div>
     <div class="input-label-container">
-      {{ form.received_date.label }}
-      {{ form.received_date }}
+      <label for="received_date">Received Date</label>
+      <input type="date" name="received_date" id="received_date">
     </div>
   </div>
   <div class="form-group date-inputs">
     <div class="input-label-container">
-      {{ form.ship_date.label }}
-      {{ form.ship_date }}
+      <label for="ship_date">Ship Date</label>
+      <input type="date" name="ship_date" id="ship_date">
     </div>
   </div>
   <div class="form-group">
-    {{ form.part_number.label }}
-    {{ form.part_number }}
+    <label for="part_number">Part Number</label>
+    <input type="text" name="part_number" id="part_number">
   </div>
   <div class="form-group">
-    {{ form.project_number.label }}
-    {{ form.project_number }}
+    <label for="project_number">Project Number</label>
+    <input type="text" name="project_number" id="project_number">
   </div>
   <div class="form-group">
-    {{ form.job_number.label }}
-    {{ form.job_number }}
+    <label for="job_number">Job Number</label>
+    <input type="text" name="job_number" id="job_number" required>
   </div>
   <div class="form-group">
-    {{ form.sales_order.label }}
-    {{ form.sales_order }}
+    <label for="sales_order">Sales Order</label>
+    <input type="text" name="sales_order" id="sales_order">
   </div>
   <div class="form-group">
-    {{ form.vendor_name.label }}
-    {{ form.vendor_name }}
+    <label for="vendor_name">Vendor Name</label>
+    <input type="text" name="vendor_name" id="vendor_name">
   </div>
   <div class="form-group">
-    {{ form.status.label }}
-    {{ form.status }}
+    <label for="status">Status</label>
+    <select name="status" id="status">
+      <option value="In Transit">In Transit</option>
+      <option value="Backordered">Backordered</option>
+      <option value="In Receiving">In Receiving</option>
+      <option value="Defective">Defective</option>
+      <option value="Being Made">Being Made</option>
+    </select>
   </div>
   <div class="form-group">
-    {{ form.order_quantity.label }}
-    {{ form.order_quantity }}
+    <label for="order_quantity">Order Quantity</label>
+    <input type="text" name="order_quantity" id="order_quantity">
   </div>
   <div class="form-group">
-    {{ form.notes.label }}
-    {{ form.notes }}
+    <label for="notes">Notes</label>
+    <textarea name="notes" id="notes" cols="30" rows="2"></textarea>
   </div>
-  <input type="submit" value="Add Part" />
-</form>
+  <input type="submit" value="Add Part">
+  </form>
 {% endblock %}

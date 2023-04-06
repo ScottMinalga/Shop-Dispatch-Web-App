@@ -166,6 +166,11 @@ def view():
     ASM02_data = ASM02.query.all()
     archive_data = archive.query.all()
 
+    # Sort the data by 'ship_date'
+    ASM01_data = sorted(ASM01_data, key=lambda x: x.ship_date)
+    ASM02_data = sorted(ASM02_data, key=lambda x: x.ship_date)
+    archive_data = sorted(archive_data, key=lambda x: x.ship_date)
+
     # Get all parts and create a set of unique job numbers
     all_parts = parts.query.all()
     parts_job_numbers = {part.job_number for part in all_parts}
@@ -349,7 +354,7 @@ def add_part():
         order_date = request.form["order_date"]
         received_date = request.form["received_date"]
 
-        part = Parts(part_number, project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity, order_date, received_date)
+        part = parts(part_number, project_number, job_number, sales_order, vendor_name, status, notes, ship_date, order_quantity, order_date, received_date)
 
         db.session.add(part)
         db.session.commit()

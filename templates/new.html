@@ -45,15 +45,15 @@
   
   <div class="form-group">
     <label for="order_date">Order Date</label>
-    <input type="date" name="order_date" id="order_date">
+    <input type="date" name="order_date" id="order_date" required>
     <label for = "ship_date">Ship Date</label>
-    <input type = "date" name = "ship_date" id=""><br>
+    <input type = "date" name = "ship_date" id="" required><br>
     <label for = "due_date">Due Date</label>
     <input type = "date" name = "due_date" id=""><br>
     <label for = "projectnum">Project Number</label>
     <input type = "text" name = "projectnum" placeholder = "MCC***" /><br>
     <label for = "jobnum">Job Number</label>
-    <input type = "text" name = "jobnum" placeholder = "1234" /><br>
+    <input type = "text" name = "jobnum" placeholder = "1234" required/><br>
     <label for = "salesnum">Sales Number</label>
     <input type = "text" name = "salesnum" placeholder = "1234" /><br>
     <label for = "customername">Customer Name</label>
@@ -61,7 +61,20 @@
     <label for = "builder">Builder</label>
     <input type = "text" name = "builder" placeholder="Scott"><br>
     <label for = "status">Status</label>
-    <input type = "text" name = "status" placeholder = "NEW"><br>
+    <select name = "status" placeholder = "NEW">
+      <option value="Waiting For BOM">Waiting For BoM 100%</option>
+      <option value="Job Created Not Picked">Job Created - Not Picked</option>
+      <option value="Job Created Picked">Job Created - Picked</option>
+      <option value="Waiting For Parts">Waiting For Parts</option>
+      <option value="Checking Parts">Check Parts</option>
+      <option value="Building Mechanical">Building Mechanical</option>
+      <option value="Building Electrical">Building Electrical</option>
+      <option value="Building Assembly">Building Assembly</option>
+      <option value="Wiring Electrical Into Machine">Wiring Electrical Into Machine</option>
+      <option value="On Test Stand">On Test Stand</option>
+      <option value="Crating">Crating</option>
+      <option value="Ready To Ship">Ready To Ship</option>
+   </select><br>
     <label for = "order_quantity">Order Quantity</label>
     <input type = "text" name = "order_quantity" id=""><br>
       <div class="form-group">
