@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% macro render_table(data, parts_job_numbers) %}
-      <table class="table table-striped">
+    <table class="table table-striped custom-table">
     <thead>
       <tr>
         <th>Triangle</th>
@@ -19,13 +19,13 @@
       </tr>
     </thead>
     <tbody>
-      {% for job in data %}
-        <tr>
-          {% if job.job_number in parts_job_numbers %}
-            <td><svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="red" /></svg></td>
-          {% else %}
-            <td><svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="green" /></svg></td>
-          {% endif %}
+    {% for job in data %}
+      <tr>
+        {% if job.job_number in parts_job_numbers %}
+          <td><a href="{{ url_for('view_parts', job_number=job.job_number|string()) }}"><svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="red" /></svg></a></td>
+        {% else %}
+          <td><svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="green" /></svg></td>
+        {% endif %}
           <td>{{ job.project_number }}</td>
           <td>{{ job.job_number }}</td>
           <td>{{ job.sales_order }}</td>
@@ -44,16 +44,23 @@
 {% endmacro %}
 
 {% block content %}
+<style>
+  .custom-table {
+    width: 170%; /* Set the width you desire */
+    left: -35%; /* Set the left position you desire */
+    position: relative; /* Make sure it's positioned relative to the browser window */
+  }
+</style>
   <div class="container mt-5">
     <ul class="nav nav-tabs">
       <li class="nav-item">
-        <a class="nav-link active" id="ASM01-tab" data-toggle="tab" href="#ASM01">ASM01</a>
+        <a class="nav-link" id="ASM01-tab" data-toggle="tab" href="#ASM01" onclick="storeActiveTab('ASM01')">ASM01</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02">ASM02</a>
+        <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02" onclick="storeActiveTab('ASM02')">ASM02</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive">Archive</a>
+        <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive" onclick="storeActiveTab('archive')">Archive</a>
       </li>
     </ul>
     <div class="tab-content">
@@ -68,4 +75,41 @@
       </div>
     </div>
   </div>
+  <script>
+    function storeActiveTab(tabId) {
+      localStorage.setItem('activeTab', tabId);
+    }
+
+    function restoreActiveTab() {
+      const activeTabId = localStorage.getItem('activeTab');
+      if (activeTabId) {
+        // Deactivate all tabs
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+          link.setAttribute('aria-selected', 'false');
+        });
+
+        // Deactivate all tab content panes
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+          pane.classList.remove('show', 'active');
+        });
+
+        // Activate the stored tab and its content pane
+        const activeTab = document.getElementById(`${activeTabId}-tab`);
+        const activePane = document.getElementById(activeTabId);
+        if (activeTab && activePane) {
+          activeTab.classList.add('active');
+          activeTab.setAttribute('aria-selected', 'true');
+          activePane.classList.add('show', 'active');
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', restoreActiveTab);
+
+    // Refresh the page every 3 minutes (180000 milliseconds)
+    setTimeout(function() {
+      location.reload();
+    }, 180000);
+  </script>
 {% endblock %}

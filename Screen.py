@@ -365,8 +365,12 @@ def add_part():
     return render_template("add_part.html", form=form)
 
 @app.route("/view_parts")
-def view_parts():
-    all_parts = parts.query.all()
+@app.route("/view_parts/<job_number>")
+def view_parts(job_number=None):
+    if job_number:
+        all_parts = parts.query.filter_by(job_number=job_number).all()
+    else:
+        all_parts = parts.query.all()
     return render_template("view_parts.html", parts=all_parts)
 
 @app.route('/logout')
