@@ -1,110 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
     <title>{% block title %} {% endblock %}</title>
-    <style id="dark-mode-styles">
-      :root {
-        --body-bg: #fff;
-        --text-color: #000;
-        --navbar-bg: #f8f9fa;
-      }
-    
-      body.dark-mode {
-        background-color: var(--body-bg);
-        color: var(--text-color);
-      }
-    
-      .dark-mode .navbar {
-        background-color: var(--navbar-bg);
-      }
+    <style>
+        .footer {
+            position: bottom;
+            left: 0;
+            bottom: 0;
+            width: 95%;
+            background-color: white;
+            color: black;
+            text-align: right;
+        }
+
+        .nested-list {
+            display: none;
+        }
     </style>
 </head>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="/"><img src="https://www.marubeni.com/en/common/img/ogp.jpg" alt="Marubeni" height="20" width="auto" ></a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/"><img src="https://www.marubeni.com/en/common/img/ogp.jpg" alt="Marubeni"
+                                               height="20" width="auto"></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/">Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('view') }}">Shop Work</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="add">Add Job</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('view_parts') }}">Parts List</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="add_part">Add Part</a>
-              </li>
-          
-              {% if "user_id" in session %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('logout') }}">Log out</a>
+                    <a class="nav-link active" aria-current="page" href="/">Home</a>
                 </li>
-              {% else %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('login') }}">Log in</a>
+                    <a class="nav-link" href="{{ url_for('view') }}">Shop Work</a>
                 </li>
-              {% endif %}
-              <li class="nav-item">
-                <div class="form-check form-switch">
-                  <input type="checkbox" class="form-check-input" id="darkModeSwitch">
-                  <label class="form-check-label" for="darkModeSwitch">Dark Mode</label>
-                </div>
-              </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="add">Add Job</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('view_parts') }}">Parts List</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="add_part">Add Part</a>
+                </li>
+
+                {% if "user_id" in session %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Log out</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('login') }}">Log in</a>
+                {% endif %}
             </ul>
-          </div>
+            <div class="form-check form-switch ms-auto">
+              <input type="checkbox" id="darkModeSwitch">
+              <label class="form-check-label" for="darkModeSwitch">Dark mode</label>
+            </div>
         </div>
-      </nav>
-      <div class="container-fluid">
-        {% block content%}
-        {% endblock %} 
-      </div>
-
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-
-<style>
-  .footer {
-    position: bottom;
-    left: 0;
-    bottom: 0;
-    width: 95%;
-    background-color: white;
-    color: black;
-    text-align: right;
-  }
-  </style>
-  <style>
-    .nested-list {
-      display: none;
-    }
-  </style>
-  
-  
-  <div class="footer">
-    <p>Built and Designed by Scott Minalga</p>
-  </div>
-</body>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybBudm9GoGtQ/6UW0J2q1Vl4dEtkgOUUkIsRB8ca4E4j9g4IT" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/6en8XCp+HHAAK5GSLf2xlYtvJ8U2Q4U+9cuEnJ" crossorigin="anonymous"></script>
+    </div>
+</nav>
+{% block content %}{% endblock %}
 <script>
+  console.log('JavaScript loaded!');
   const darkModeSwitch = document.getElementById('darkModeSwitch');
-  const darkModeStyles = document.getElementById('dark-mode-styles');
 
   function enableDarkMode() {
     document.body.classList.add('dark-mode');
-    darkModeStyles.innerHTML = `
+    document.querySelector('#dark-mode-styles').innerHTML = `
       :root {
         --body-bg: #222;
         --text-color: #f8f9fa;
@@ -113,31 +78,37 @@
     `;
   }
 
-  function disableDarkMode() {
-    document.body.classList.remove('dark-mode');
-    darkModeStyles.innerHTML = `
-      :root {
-        --body-bg: #fff;
-        --text-color: #000;
-        --navbar-bg: #f8f9fa;
-      }
-    `;
-  }
-
-  // Check the saved dark mode setting and apply it
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    enableDarkMode();
-    darkModeSwitch.checked = true;
-  }
-
-  darkModeSwitch.addEventListener('change', () => {
-    if (darkModeSwitch.checked) {
-      enableDarkMode();
-      localStorage.setItem('darkMode', 'enabled');
-    } else {
-      disableDarkMode();
-      localStorage.removeItem('darkMode');
-    }
-  });
-</script>
+          
+          function disableDarkMode() {
+              document.body.classList.remove('dark-mode');
+              document.querySelector('#dark-mode-styles').innerHTML = `
+              :root {
+                  --body-bg: #fff;
+                  --text-color: #000;
+                  --navbar-bg: #f8f9fa;
+              }
+              `;
+          }
+          
+          function toggleDarkMode() {
+              if (darkModeSwitch.checked) {
+                  enableDarkMode();
+                  localStorage.setItem('darkMode', 'enabled');
+              } else {
+                  disableDarkMode();
+                  localStorage.removeItem('darkMode');
+              }
+          }
+          
+          // Check the saved dark mode setting and apply it
+              if (localStorage.getItem('darkMode') === 'enabled') {
+                  enableDarkMode();
+                  darkModeSwitch.checked = true;
+              } else {
+                  disableDarkMode();
+                  darkModeSwitch.checked = false;
+              }
+          // Add an event listener to the switch
+          darkModeSwitch.addEventListener('change', toggleDarkMode);
+        </script>
 </html>
