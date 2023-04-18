@@ -244,6 +244,7 @@ def has_matching_job_number(parts, job_number):
             return True
     return False
 
+
 app.jinja_env.filters['has_matching_job_number'] = has_matching_job_number
     
 def admin_required(f):
