@@ -175,6 +175,8 @@ def view():
     all_parts = parts.query.all()
     parts_job_numbers = {part.job_number for part in all_parts}
 
+    print(ASM01_data, ASM02_data, archive_data, parts_job_numbers)
+
     return render_template(
         'render_table_with_tabs.html',
         ASM01_data=ASM01_data,
@@ -183,41 +185,26 @@ def view():
         parts_job_numbers=parts_job_numbers,
     )
 
-@app.route("/edit/<string:table_name>/<int:entry_id>", methods=["GET", "POST"])
+@app.route('/edit_entry/<table_name>/<int:entry_id>', methods=['POST'])
 def edit_entry(table_name, entry_id):
-    if table_name == "ASM01":
-        model_class = ASM01
-    elif table_name == "ASM02":
-        model_class = ASM02
-    elif table_name == "archive":
-        model_class = archive
-    else:
-        flash("Invalid table name.")
-        return redirect(url_for("view"))
-
-    entry = model_class.query.get_or_404(entry_id)
-
-    if request.method == "GET":
-        return render_template("edit.html", entry=entry)
-
-    if request.method == "POST":
-        entry.project_number = request.form["projectnum"]
-        entry.job_number = request.form["jobnum"]
-        entry.sales_order = request.form["salesnum"]
-        entry.customer_name = request.form["customername"]
-        entry.builder = request.form["builder"]
-        entry.status = request.form["status"]
-        entry.notes = request.form["notes"]
-        entry.due_date = request.form["due_date"]
-        entry.order_date = request.form["order_date"]
-        entry.ship_date = request.form["ship_date"]
-        entry.order_quantity = request.form["order_quantity"]
-
-        db.session.commit()
-        flash("Entry updated successfully!")
-        return redirect(url_for("view"))
-
-    return render_template("edit.html", entry=entry)
+    entry = get_entry_by_id(table_name, entry_id)
+    if entry is None:
+        abort(404)
+    # Update the entry with the form data
+    form_data = request.form
+    entry.project_number = form_data['projectnum']
+    entry.job_number = form_data['jobnum']
+    entry.sales_order = form_data['salesnum']
+    # Add more fields as needed
+    db.session.commit()
+    # Return the updated entry data as a JSON response
+    return jsonify({
+        'id': entry.id,
+        'project_number': entry.project_number,
+        'job_number': entry.job_number,
+        'sales_order': entry.sales_order,
+        # Add more fields as needed
+    })
 
 
 @app.route("/delete/<string:table_name>/<int:entry_id>")

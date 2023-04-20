@@ -39,11 +39,19 @@
           <td>{{ job.ship_date }}</td>
           <td>{{ job.order_quantity }}</td>
           <td>
-            <div class="btn-group">
+            <<div class="btn-group">
               <a href="{{ url_for('move_job', job_id=job.id) }}" class="btn btn-primary btn-sm">Move</a>
-              <form method="POST" action="{{ url_for('edit_entry', table_name=job.__tablename__, entry_id=job.id) }}">
-                <button type="submit" class="btn btn-warning btn-sm">Edit</button>
-            </form>
+              <form class="edit-form" method="POST" action="{{ url_for('edit_entry', table_name=job.__tablename__, entry_id=job.id) }}">
+                {% if 'entry' in locals() %}
+                  {% if entry.id == job.id %}
+                    <button type="button" class="btn btn-warning btn-sm edit-btn" data-toggle="modal" data-target="#editModal{{ entry.id }}">Edit</button>
+                  {% else %}
+                    <button type="button" class="btn btn-warning btn-sm edit-btn" data-toggle="modal" data-target="#editModal{{ job.id }}">Edit</button>
+                  {% endif %}
+                {% else %}
+                  <button type="button" class="btn btn-warning btn-sm edit-btn" data-toggle="modal" data-target="#editModal{{ job.id }}">Edit</button>
+                {% endif %}
+              </form>
               <a href="{{ url_for('delete_entry', table_name=job.__tablename__, entry_id=job.id) }}" class="btn btn-danger btn-sm">Delete</a>
             </div>
           </td>
@@ -51,74 +59,81 @@
       {% endfor %}
     </tbody>
   </table>
-{% endmacro %}
+  {% endmacro %}
 
-{% block content %}
-<style>
-  .custom-table {
-    width: 170%; /* Set the width you desire */
-    left: -35%; /* Set the left position you desire */
-    position: relative; /* Make sure it's positioned relative to the browser window */
-  }
-</style>
-<div class="modal fade" id="editModal{{ entry.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editModalLabel">Edit Entry</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form method="POST" action="{{ url_for('edit_entry', table_name=entry.__tablename__, entry_id=entry.id) }}">
-          <div class="form-group">
-            <label for="projectnum">Project Number</label>
-            <input type="text" class="form-control" id="projectnum" name="projectnum" value="{{ entry.project_number }}" required>
+  {% block content %}
+    <style>
+      .custom-table {
+        width: 170%;
+        left: -35%;
+        position: relative;
+      }
+    </style>
+    
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit Entry</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <div class="form-group">
-            <label for="jobnum">Job Number</label>
-            <input type="text" class="form-control" id="jobnum" name="jobnum" value="{{ entry.job_number }}" required>
+          <div class="modal-body">
+            <form id="editForm" method="POST">
+              <div class="form-group">
+                <label for="projectnum">Project Number</label>
+                <input type="text" class="form-control" id="projectnum" name="projectnum" required>
+              </div>
+              <div class="form-group">
+                <label for="jobnum">Job Number</label>
+                <input type="text" class="form-control" id="jobnum" name="jobnum" required>
+              </div>
+              <div class="form-group">
+                <label for="salesnum">Sales Order</label>
+                <input type="text" class="form-control" id="salesnum" name="salesnum" required>
+              </div>
+              <!-- Add more form fields for editing other data as needed -->
+            </form>
           </div>
-          <div class="form-group">
-            <label for="salesnum">Sales Order</label>
-            <input type="text" class="form-control" id="salesnum" name="salesnum" value="{{ entry.sales_order }}" required>
-          </div>
-          <!-- Add more form fields for editing other data as needed -->
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="submit" form="editForm" class="btn btn-primary">Save changes</button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-  <div class="container mt-5">
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <a class="nav-link" id="ASM01-tab" data-toggle="tab" href="#ASM01" onclick="storeActiveTab('ASM01')">ASM01</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02" onclick="storeActiveTab('ASM02')">ASM02</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive" onclick="storeActiveTab('archive')">Archive</a>
-      </li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
-        {{ render_table(ASM01_data, parts_job_numbers) }}
-      </div>
-      <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
-        {{ render_table(ASM02_data, parts_job_numbers) }}
-      </div>
-      <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
-        {{ render_table(archive_data, parts_job_numbers) }}
+  
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-2">
+          <div class="list-group">
+            <a href="{{ url_for('index') }}" class="list-group-item">All Jobs</a>
+            {% for status in statuses %}
+              <a href="{{ url_for('jobs_by_status', status_name=status) }}" class="list-group-item">{{ status }}</a>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col-md-10">
+          <div class="row">
+            <div class="col-md-6">
+              <h3>{{ page_title }}</h3>
+            </div>
+            <div class="col-md-6">
+              <form class="form-inline float-right" method="POST" action="{{ url_for('add_job') }}">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="new_job" name="new_job" placeholder="New Job">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Job</button>
+              </form>
+            </div>
+          </div>
+          {{ render_table(jobs, parts_job_numbers) }}
+        </div>
       </div>
     </div>
-  </div>
-  <script>
+      
+  <!-- script>
     function storeActiveTab(tabId) {
       localStorage.setItem('activeTab', tabId);
     }
@@ -154,5 +169,33 @@
     setTimeout(function() {
       location.reload();
     }, 180000);
-  </script>
+
+    $(document).on('submit', '.edit-form', function(e) {
+      // When an edit form is submitted...
+      e.preventDefault(); // Prevent the default form submission behavior
+      var form = $(this); // Get the form that was submitted
+      var url = form.attr('action'); // Get the URL to submit the form to
+      var data = form.serialize(); // Serialize the form data into a string
+      $.ajax({
+        type: 'POST', // Use HTTP POST method
+        url: url, // Set the URL to submit the data to
+        data: data, // Set the serialized form data as the request body
+        success: function(response) {
+          // When the AJAX request is successful...
+          var row = $('#entry_' + response['id']); // Get the table row for the updated entry
+          row.find('.projectnum').text(response['project_number']); // Update the project number column with the new value
+          row.find('.jobnum').text(response['job_number']); // Update the job number column with the new value
+          row.find('.salesnum').text(response['sales_order']); // Update the sales order column with the new value
+          // Add more lines to update other columns as needed
+          $('#editModal').modal('hide'); // Hide the edit modal
+        },
+        error: function(xhr, status, error) {
+          // When the AJAX request encounters an error...
+          console.error(xhr.responseText); // Log the error message to the console
+        }
+      });
+    });
+
+  </script> -->
+
 {% endblock %}
