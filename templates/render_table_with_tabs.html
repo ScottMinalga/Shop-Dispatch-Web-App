@@ -42,7 +42,7 @@
             <div class="btn-group">
               <a href="{{ url_for('move_job', job_id=job.id) }}" class="btn btn-primary btn-sm">Move</a>
               <form class="edit-form" method="POST" action="{{ url_for('edit_entry', table_name=job.__tablename__, entry_id=job.id) }}">
-                {% if 'entry' in locals() %}
+                {% if entry is defined %}
                   {% if entry.id == job.id %}
                     <button type="button" class="btn btn-warning btn-sm edit-btn" data-toggle="modal" data-target="#editModal{{ entry.id }}">Edit</button>
                   {% else %}
@@ -104,11 +104,10 @@
       </div>
     </div>
   
-    <div class="container-fluid">
+     <div class="container-fluid">
       <div class="row">
         <div class="col-md-2">
           <div class="list-group">
-            <a href="{{ url_for('view') }}" class="list-group-item">All Jobs</a>
             {% for status in statuses %}
               <a href="{{ url_for('jobs_by_status', status_name=status) }}" class="list-group-item">{{ status }}</a>
             {% endfor %}
@@ -117,18 +116,30 @@
         <div class="col-md-10">
           <div class="row">
             <div class="col-md-6">
-              <h3>{{ page_title }}</h3>
+              <h3>ASM01 Data</h3>
             </div>
             <div class="col-md-6">
-              <form class="form-inline float-right" method="POST" action="{{ url_for('add') }}">
-                <div class="form-group">
-                  <input type="text" class="form-control" id="new_job" name="new_job" placeholder="New Job">
-                </div>
-                <button type="submit" class="btn btn-primary">Add Job</button>
-              </form>
             </div>
           </div>
-          {{ render_table(jobs, parts_job_numbers) }}
+          {{ render_table(ASM01_data, parts_job_numbers) }}
+          
+          <div class="row">
+            <div class="col-md-6">
+              <h3>ASM02 Data</h3>
+            </div>
+            <div class="col-md-6">
+            </div>
+          </div>
+          {{ render_table(ASM02_data, parts_job_numbers) }}
+          
+          <div class="row">
+            <div class="col-md-6">
+              <h3>Archive Data</h3>
+            </div>
+            <div class="col-md-6">
+            </div>
+          </div>
+          {{ render_table(archive_data, parts_job_numbers) }}
         </div>
       </div>
     </div>

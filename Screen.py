@@ -19,7 +19,7 @@ db = SQLAlchemy(app)
 #model for SQL
 
 class ASM01(db.Model):
-    _id = db.Column("id", db.Integer, primary_key=True)
+    id = db.Column("id", db.Integer, primary_key=True)
     project_number = db.Column(db.String(100))
     job_number = db.Column(db.String(100))
     sales_order = db.Column(db.String(100))
@@ -46,7 +46,7 @@ class ASM01(db.Model):
         self.order_quantity = order_quantity
 
 class ASM02(db.Model):
-    _id = db.Column("id", db.Integer, primary_key=True)
+    id = db.Column("id", db.Integer, primary_key=True)
     project_number = db.Column(db.String(100))
     job_number = db.Column(db.String(100))
     sales_order = db.Column(db.String(100))
@@ -73,7 +73,7 @@ class ASM02(db.Model):
         self.order_quantity = order_quantity
 
 class archive(db.Model):
-    _id = db.Column("id", db.Integer, primary_key=True)
+    id = db.Column("id", db.Integer, primary_key=True)
     project_number = db.Column(db.String(100))
     job_number = db.Column(db.String(100))
     sales_order = db.Column(db.String(100))
@@ -100,7 +100,7 @@ class archive(db.Model):
         self.order_quantity = order_quantity
 
 class parts(db.Model):
-    _id = db.Column("id", db.Integer, primary_key=True)
+    id = db.Column("id", db.Integer, primary_key=True)
     part_number = db.Column(db.String(100))
     project_number = db.Column(db.String(100))
     job_number = db.Column(db.String(100))
@@ -127,7 +127,7 @@ class parts(db.Model):
         self.received_date = received_date
 
 class User(db.Model):
-    _id = db.Column("id", db.Integer, primary_key=True)
+    id = db.Column("id", db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
@@ -182,7 +182,7 @@ def view():
         ASM01_data=ASM01_data,
         ASM02_data=ASM02_data,
         archive_data=archive_data,
-        parts_job_numbers=parts_job_numbers,
+        parts_job_numbers=parts_job_numbers
     )
 
 @app.route('/edit_entry/<table_name>/<int:entry_id>', methods=['POST'])
@@ -231,6 +231,11 @@ def has_matching_job_number(parts, job_number):
             return True
     return False
 
+@app.route('/move_job/<int:job_id>', methods=['GET', 'POST'])
+def move_job(job_id):
+    # Your logic to move the job goes here
+
+    return redirect(url_for('view'))
 
 app.jinja_env.filters['has_matching_job_number'] = has_matching_job_number
     
