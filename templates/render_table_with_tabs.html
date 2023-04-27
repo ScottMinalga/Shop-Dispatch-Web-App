@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 
 {% macro render_table(data, parts_job_numbers) %}
-    <table class="table table-striped custom-table">
+    <!-- Wrap the table and its title in a container -->
+    <div class="custom-table-container">
+        <h1 class="text-center">{{ data[0].type if data else "No Data" }}</h1>
+        <div class="table-responsive">
+            <table class="table table-striped">
     <thead>
       <tr>
         <th>Parts Status</th>
@@ -59,16 +63,16 @@
       {% endfor %}
     </tbody>
   </table>
+</div>
   {% endmacro %}
 
   {% block content %}
-    <style>
-      .custom-table {
-        width: 170%;
-        left: -35%;
-        position: relative;
-      }
-    </style>
+  <style>
+    .custom-table-container {
+        padding-left: -5;
+        padding-right: 0;
+    }
+  </style>
     
     <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
@@ -104,7 +108,7 @@
       </div>
     </div>
   
-     <div class="container-fluid">
+    <div class="container-fluid">
       <div class="row">
         <div class="col-md-2">
           <div class="list-group">
@@ -114,99 +118,110 @@
           </div>
         </div>
         <div class="col-md-10">
-          <div class="row">
-            <div class="col-md-6">
+          <!-- Tab navigation -->
+          <ul class="nav nav-tabs" id="myTabs" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="ASM01-tab" data-toggle="tab" href="#ASM01" role="tab" aria-controls="ASM01" aria-selected="true">ASM01</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02" role="tab" aria-controls="ASM02" aria-selected="false">ASM02</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive" role="tab" aria-controls="archive" aria-selected="false">Archive</a>
+            </li>
+          </ul>
+
+          <!-- Tab content -->
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
               <h3>ASM01 Data</h3>
+              {{ render_table(ASM01_data, parts_job_numbers) }}
             </div>
-            <div class="col-md-6">
-            </div>
-          </div>
-          {{ render_table(ASM01_data, parts_job_numbers) }}
-          
-          <div class="row">
-            <div class="col-md-6">
+            <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
               <h3>ASM02 Data</h3>
+              {{ render_table(ASM02_data, parts_job_numbers) }}
             </div>
-            <div class="col-md-6">
-            </div>
-          </div>
-          {{ render_table(ASM02_data, parts_job_numbers) }}
-          
-          <div class="row">
-            <div class="col-md-6">
+            <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
               <h3>Archive Data</h3>
-            </div>
-            <div class="col-md-6">
+              {{ render_table(archive_data, parts_job_numbers) }}
             </div>
           </div>
-          {{ render_table(archive_data, parts_job_numbers) }}
         </div>
       </div>
     </div>
+
       
-  <!-- script>
-    function storeActiveTab(tabId) {
-      localStorage.setItem('activeTab', tabId);
-    }
-
-    function restoreActiveTab() {
-      const activeTabId = localStorage.getItem('activeTab');
-      if (activeTabId) {
-        // Deactivate all tabs
-        document.querySelectorAll('.nav-link').forEach(link => {
-          link.classList.remove('active');
-          link.setAttribute('aria-selected', 'false');
-        });
-
-        // Deactivate all tab content panes
-        document.querySelectorAll('.tab-pane').forEach(pane => {
-          pane.classList.remove('show', 'active');
-        });
-
-        // Activate the stored tab and its content pane
-        const activeTab = document.getElementById(`${activeTabId}-tab`);
-        const activePane = document.getElementById(activeTabId);
-        if (activeTab && activePane) {
-          activeTab.classList.add('active');
-          activeTab.setAttribute('aria-selected', 'true');
-          activePane.classList.add('show', 'active');
+    <script>
+      function storeActiveTab(tabId) {
+        localStorage.setItem('activeTab', tabId);
+      }
+  
+      function restoreActiveTab() {
+        const activeTabId = localStorage.getItem('activeTab');
+        if (activeTabId) {
+          // Deactivate all tabs
+          document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+            link.setAttribute('aria-selected', 'false');
+          });
+  
+          // Deactivate all tab content panes
+          document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.remove('show', 'active');
+          });
+  
+          // Activate the stored tab and its content pane
+          const activeTab = document.getElementById(`${activeTabId}-tab`);
+          const activePane = document.getElementById(activeTabId);
+          if (activeTab && activePane) {
+            activeTab.classList.add('active');
+            activeTab.setAttribute('aria-selected', 'true');
+            activePane.classList.add('show', 'active');
+          }
         }
       }
-    }
-
-    document.addEventListener('DOMContentLoaded', restoreActiveTab);
-
-    // Refresh the page every 3 minutes (180000 milliseconds)
-    setTimeout(function() {
-      location.reload();
-    }, 180000);
-
-    $(document).on('submit', '.edit-form', function(e) {
-      // When an edit form is submitted...
-      e.preventDefault(); // Prevent the default form submission behavior
-      var form = $(this); // Get the form that was submitted
-      var url = form.attr('action'); // Get the URL to submit the form to
-      var data = form.serialize(); // Serialize the form data into a string
-      $.ajax({
-        type: 'POST', // Use HTTP POST method
-        url: url, // Set the URL to submit the data to
-        data: data, // Set the serialized form data as the request body
-        success: function(response) {
-          // When the AJAX request is successful...
-          var row = $('#entry_' + response['id']); // Get the table row for the updated entry
-          row.find('.projectnum').text(response['project_number']); // Update the project number column with the new value
-          row.find('.jobnum').text(response['job_number']); // Update the job number column with the new value
-          row.find('.salesnum').text(response['sales_order']); // Update the sales order column with the new value
-          // Add more lines to update other columns as needed
-          $('#editModal').modal('hide'); // Hide the edit modal
-        },
-        error: function(xhr, status, error) {
-          // When the AJAX request encounters an error...
-          console.error(xhr.responseText); // Log the error message to the console
-        }
+  
+      document.addEventListener('DOMContentLoaded', function() {
+          restoreActiveTab();
+  
+          document.querySelectorAll('.nav-link').forEach(link => {
+              link.addEventListener('click', function() {
+                  storeActiveTab(this.getAttribute('aria-controls'));
+              });
+          });
       });
-    });
-
-  </script> -->
+  
+      // Refresh the page every 3 minutes (180000 milliseconds)
+      setTimeout(function() {
+        location.reload();
+      }, 180000);
+  
+      $(document).on('submit', '.edit-form', function(e) {
+        // When an edit form is submitted...
+        e.preventDefault(); // Prevent the default form submission behavior
+        var form = $(this); // Get the form that was submitted
+        var url = form.attr('action'); // Get the URL to submit the form to
+        var data = form.serialize(); // Serialize the form data into a string
+        $.ajax({
+          type: 'POST', // Use HTTP POST method
+          url: url, // Set the URL to submit the data to
+          data: data, // Set the serialized form data as the request body
+          success: function(response) {
+            // When the AJAX request is successful...
+            var row = $('#entry_' + response['id']); // Get the table row for the updated entry
+            row.find('.projectnum').text(response['project_number']); // Update the project number column with the new value
+            row.find('.jobnum').text(response['job_number']); // Update the job number column with the new value
+            row.find('.salesnum').text(response['sales_order']); // Update the sales order column with the new value
+            // Add more lines to update other columns as needed
+            $('#editModal').modal('hide'); // Hide the edit modal
+          },
+          error: function(xhr, status, error) {
+            // When the AJAX request encounters an error...
+            console.error(xhr.responseText); // Log the error message to the console
+          }
+        });
+      });
+  
+  </script>
 
 {% endblock %}
