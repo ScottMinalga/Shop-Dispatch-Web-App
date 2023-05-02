@@ -441,7 +441,7 @@ def login():
 
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
-            session['user_id'] = user._id
+            session['user_id'] = user.id
             session['username'] = user.username
             session['is_admin'] = user.is_admin
 
