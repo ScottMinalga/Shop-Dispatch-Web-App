@@ -1,9 +1,24 @@
 {% extends "base.html" %}
 
 {% macro render_table(data, parts_job_numbers) %}
+   <!-- Edit Entry Modal -->
+   <div id="editEntryModal" class="modal" style="display: none;">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <form id="editEntryForm">
+            <input type="hidden" id="jobNumber" name="jobNumber"> <!-- hidden field for the job number -->
+            <label for="project_number">Project Number:</label>
+            <input type="text" id="project_number" name="project_number">
+            <!-- ...other fields... -->
+            <input type="submit" value="Save Changes">
+        </form>
+    </div>
+</div>
     <table class="table table-striped custom-table">
     <thead>
       <tr>
+    </div>
+  </div>
         <th>Triangle</th>
         <th>Project Number</th>
         <th>Job Number</th>
@@ -37,8 +52,21 @@
           <td>{{ job.order_date }}</td>
           <td>{{ job.ship_date }}</td>
           <td>{{ job.order_quantity }}</td>
+          {% if "user_id" in session and session["is_admin"] %}
+          <td>
+            <button type="button" class="btn btn-warning" onclick="showEditEntryModal('{{ job.job_number }}')">Edit</button>
+          </td>
+          <td>
+            <button type="button" class="btn btn-primary" onclick="changeTable('{{ job.job_number }}')">Change Table</button>
+          </td>
+          <td>
+            <button type="button" class="btn btn-danger" onclick="deleteEntry('{{ job.job_number }}')">Delete</button>
+          </td>
+          {% endif %}
+        </tr>
         </tr>
       {% endfor %}
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </tbody>
   </table>
 {% endmacro %}
@@ -46,15 +74,15 @@
 {% block content %}
 <style>
   .custom-table {
-    width: 170%; /* Set the width you desire */
-    left: -35%; /* Set the left position you desire */
+    width: 140%; /* Set the width you desire */
+    left: -20%; /* Set the left position you desire */
     position: relative; /* Make sure it's positioned relative to the browser window */
   }
 </style>
   <div class="container mt-5">
     <ul class="nav nav-tabs">
       <li class="nav-item">
-        <a class="nav-link" id="ASM01-tab" data-toggle="tab" href="#ASM01" onclick="storeActiveTab('ASM01')">ASM01</a>
+        <a class="nav-link active" id="ASM01-tab" data-toggle="tab" href="#ASM01" onclick="storeActiveTab('ASM01')">ASM01</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02" onclick="storeActiveTab('ASM02')">ASM02</a>
@@ -76,40 +104,59 @@
     </div>
   </div>
   <script>
+    function showEditEntryModal(jobNumber) {
+      // Get the modal and form
+      var modal = $("#editEntryModal");
+      var form = $("#editEntryForm");
+
+      // Set the job number
+      form.find('#jobNumber').val(jobNumber);
+
+      // Load the current entry data into the form
+      $.get("/get_entry_data", {jobNumber: jobNumber}, function(data) {
+        form.find('#project_number').val(data.project_number);
+        // ...load the other fields...
+
+        // Show the modal
+        modal.modal('show');
+      });
+    }
+</script>
+  <script>
     function storeActiveTab(tabId) {
       localStorage.setItem('activeTab', tabId);
     }
 
-    function restoreActiveTab() {
-      const activeTabId = localStorage.getItem('activeTab');
-      if (activeTabId) {
-        // Deactivate all tabs
-        document.querySelectorAll('.nav-link').forEach(link => {
-          link.classList.remove('active');
-          link.setAttribute('aria-selected', 'false');
-        });
+function restoreActiveTab() {
+  const activeTabId = localStorage.getItem('activeTab');
+  if (activeTabId) {
+    // Deactivate all tabs
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.remove('active');
+      link.setAttribute('aria-selected', 'false');
+    });
 
-        // Deactivate all tab content panes
-        document.querySelectorAll('.tab-pane').forEach(pane => {
-          pane.classList.remove('show', 'active');
-        });
+    // Deactivate all tab content panes
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+      pane.classList.remove('show', 'active');
+    });
 
-        // Activate the stored tab and its content pane
-        const activeTab = document.getElementById(`${activeTabId}-tab`);
-        const activePane = document.getElementById(activeTabId);
-        if (activeTab && activePane) {
-          activeTab.classList.add('active');
-          activeTab.setAttribute('aria-selected', 'true');
-          activePane.classList.add('show', 'active');
-        }
-      }
+    // Activate the stored tab and its content pane
+    const activeTab = document.getElementById(`${activeTabId}-tab`);
+    const activePane = document.getElementById(activeTabId);
+    if (activeTab && activePane) {
+      activeTab.classList.add('active');
+      activeTab.setAttribute('aria-selected', 'true');
+      activePane.classList.add('show', 'active');
     }
+  }
+}
 
-    document.addEventListener('DOMContentLoaded', restoreActiveTab);
+document.addEventListener('DOMContentLoaded', restoreActiveTab);
 
-    // Refresh the page every 3 minutes (180000 milliseconds)
-    setTimeout(function() {
-      location.reload();
-    }, 180000);
-  </script>
+// Refresh the page every 3 minutes (180000 milliseconds)
+setInterval(function() {
+  location.reload();
+}, 180000);
+</script>
 {% endblock %}

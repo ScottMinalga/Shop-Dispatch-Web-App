@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, session, flash
+from flask import Flask, redirect, url_for, render_template, request, session, flash, jsonify
 from datetime import timedelta
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -183,41 +183,32 @@ def view():
         parts_job_numbers=parts_job_numbers,
     )
 
-@app.route("/edit/<string:table_name>/<int:entry_id>", methods=["GET", "POST"])
-def edit_entry(table_name, entry_id):
-    if table_name == "ASM01":
-        model_class = ASM01
-    elif table_name == "ASM02":
-        model_class = ASM02
-    elif table_name == "archive":
-        model_class = archive
+@app.route("/change_table/<int:entry_id>", methods=["POST"])
+def change_table(entry_id):
+    new_table_name = request.form.get('new_table_name')
+
+    if new_table_name == "ASM01":
+        old_model_class = [ASM02, archive]
+        new_model_class = ASM01
+    elif new_table_name == "ASM02":
+        old_model_class = [ASM01, archive]
+        new_model_class = ASM02
+    elif new_table_name == "archive":
+        old_model_class = [ASM01, ASM02]
+        new_model_class = archive
     else:
-        flash("Invalid table name.")
-        return redirect(url_for("view"))
+        return jsonify(success=False, message="Invalid table name.")
 
-    entry = model_class.query.get_or_404(entry_id)
+    for model in old_model_class:
+        entry = model.query.get(entry_id)
+        if entry is not None:
+            new_entry = new_model_class(**entry.__dict__)
+            db.session.delete(entry)
+            db.session.add(new_entry)
+            db.session.commit()
+            return jsonify(success=True, message="Table changed successfully!")
 
-    if request.method == "GET":
-        return render_template("edit.html", entry=entry)
-
-    if request.method == "POST":
-        entry.project_number = request.form["projectnum"]
-        entry.job_number = request.form["jobnum"]
-        entry.sales_order = request.form["salesnum"]
-        entry.customer_name = request.form["customername"]
-        entry.builder = request.form["builder"]
-        entry.status = request.form["status"]
-        entry.notes = request.form["notes"]
-        entry.due_date = request.form["due_date"]
-        entry.order_date = request.form["order_date"]
-        entry.ship_date = request.form["ship_date"]
-        entry.order_quantity = request.form["order_quantity"]
-
-        db.session.commit()
-        flash("Entry updated successfully!")
-        return redirect(url_for("view"))
-
-    return render_template("edit.html", entry=entry)
+    return jsonify(success=False, message="Entry not found.")
 
 
 @app.route("/delete/<string:table_name>/<int:entry_id>")

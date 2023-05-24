@@ -90,8 +90,29 @@
       display: none;
     }
   </style>
+  <style>
+    :root {
+      --body-bg: #fff;
+      --text-color: #000;
+      --navbar-bg: #f8f9fa;
+      --footer-bg: #fff;
+    }
   
+    body {
+      background-color: var(--body-bg);
+      color: var(--text-color);
+    }
   
+    .navbar {
+      background-color: var(--navbar-bg);
+    }
+  
+    .footer {
+      background-color: var(--footer-bg);
+      color: var(--text-color);
+    }
+  </style>  
+
   <div class="footer">
     <p>Built and Designed by Scott Minalga</p>
   </div>
@@ -99,45 +120,32 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybBudm9GoGtQ/6UW0J2q1Vl4dEtkgOUUkIsRB8ca4E4j9g4IT" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/6en8XCp+HHAAK5GSLf2xlYtvJ8U2Q4U+9cuEnJ" crossorigin="anonymous"></script>
 <script>
-  const darkModeSwitch = document.getElementById('darkModeSwitch');
-  const darkModeStyles = document.getElementById('dark-mode-styles');
+  // Get the current value of the dark mode preference from localStorage
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
 
-  function enableDarkMode() {
-    document.body.classList.add('dark-mode');
-    darkModeStyles.innerHTML = `
-      :root {
-        --body-bg: #222;
-        --text-color: #f8f9fa;
-        --navbar-bg: #343a40;
-      }
-    `;
-  }
+  // Apply the dark mode preference on page load
+  document.getElementById('darkModeSwitch').checked = isDarkMode;
+  toggleDarkMode(isDarkMode);
 
-  function disableDarkMode() {
-    document.body.classList.remove('dark-mode');
-    darkModeStyles.innerHTML = `
-      :root {
-        --body-bg: #fff;
-        --text-color: #000;
-        --navbar-bg: #f8f9fa;
-      }
-    `;
-  }
-
-  // Check the saved dark mode setting and apply it
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    enableDarkMode();
-    darkModeSwitch.checked = true;
-  }
-
-  darkModeSwitch.addEventListener('change', () => {
-    if (darkModeSwitch.checked) {
-      enableDarkMode();
-      localStorage.setItem('darkMode', 'enabled');
-    } else {
-      disableDarkMode();
-      localStorage.removeItem('darkMode');
-    }
+  // Listen for changes to the Dark Mode switch
+  document.getElementById('darkModeSwitch').addEventListener('change', function(event) {
+      toggleDarkMode(event.target.checked);
   });
+
+  function toggleDarkMode(enabled) {
+      if (enabled) {
+          document.documentElement.style.setProperty('--body-bg', '#1e1e1e');
+          document.documentElement.style.setProperty('--text-color', '#ffff00'); // Yellow text
+          document.documentElement.style.setProperty('--navbar-bg', '#2e2e2e');
+          document.documentElement.style.setProperty('--footer-bg', '#2e2e2e');
+          localStorage.setItem('darkMode', 'true'); // Save the preference to localStorage
+      } else {
+          document.documentElement.style.setProperty('--body-bg', '#fff');
+          document.documentElement.style.setProperty('--text-color', '#000');
+          document.documentElement.style.setProperty('--navbar-bg', '#f8f9fa');
+          document.documentElement.style.setProperty('--footer-bg', '#fff');
+          localStorage.setItem('darkMode', 'false'); // Save the preference to localStorage
+      }
+  }
 </script>
 </html>
