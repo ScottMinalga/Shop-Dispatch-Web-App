@@ -66,6 +66,7 @@
         </tr>
         </tr>
       {% endfor %}
+      <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </tbody>
   </table>
@@ -123,6 +124,30 @@
     }
 </script>
   <script>
+    function deleteEntry(jobNumber) {
+      console.log("Delete Entry function called for jobNumber: ", jobNumber);
+      var confirmation = confirm("Are you sure you want to delete this entry?");
+      if (confirmation) {
+          $.ajax({
+              url: '/delete_entry', // Your delete entry endpoint
+              type: 'POST',
+              data: {
+                  'job_number': jobNumber
+              },
+              success: function(result) {
+                  console.log("AJAX request successful, received: ", result);
+                  if (result.status === 'success') {
+                      location.reload(); // Reload the page to reflect the changes
+                  } else {
+                      alert('Unable to delete entry. Please try again.');
+                  }
+              },
+              error: function(xhr, status, error){
+                  console.error("AJAX request failed. Status: ", status, "Error: ", error);
+              }
+          });
+      }
+  }
     function storeActiveTab(tabId) {
       localStorage.setItem('activeTab', tabId);
     }

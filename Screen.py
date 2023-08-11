@@ -211,23 +211,22 @@ def change_table(entry_id):
     return jsonify(success=False, message="Entry not found.")
 
 
-@app.route("/delete/<string:table_name>/<int:entry_id>")
-def delete_entry(table_name, entry_id):
-    if table_name == "ASM01":
-        model_class = ASM01
-    elif table_name == "ASM02":
-        model_class = ASM02
-    elif table_name == "archive":
-        model_class = archive
-    else:
-        flash("Invalid table name.")
-        return redirect(url_for("view"))
+@app.route('/delete_entry', methods=['POST'])
+def delete_entry():
+    print('Form data:', request.form)  # This will print the entire form data.
+    job_number = request.form.get('job_number')
+    print('Job number:', job_number)
+    models = [ASM01, ASM02, archive, parts]  # assuming you want to delete from these tables
+    # logic to delete entry based on job_number
+    try:
+        for model in models:
+            db.session.query(model).filter(model.job_number == job_number).delete()
+        db.session.commit()
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        print("Error:", str(e))
+        return jsonify({'status': 'error', 'message': str(e)})
 
-    entry = model_class.query.get_or_404(entry_id)
-    db.session.delete(entry)
-    db.session.commit()
-    flash("Entry deleted successfully!")
-    return redirect(url_for("view"))
 
 def has_matching_job_number(parts, job_number):
     for part in parts:
@@ -355,6 +354,35 @@ def add_part():
 
     return render_template("add_part.html", form=form)
 
+@app.route('/parts/<part_number>/edit', methods=['GET'])
+def edit_part(part_number):
+    part = parts.query.get_or_404(part_number)
+    form = EditPartForm(obj=part)  # Assuming you have a form for editing a part
+    return render_template('edit_part.html', form=form)
+
+def to_dict(self):
+    return {
+        'part_number': self.part_number,
+        'project_number': self.project_number,
+        'job_number': self.job_number,
+        'sales_order': self.sales_order,
+        'vendor_name': self.vendor_name,
+        'status': self.status,
+        'notes': self.notes,
+        'ship_date': self.ship_date.isoformat() if self.ship_date else None,
+        'order_quantity': self.order_quantity,
+        'order_date': self.order_date.isoformat() if self.order_date else None,
+        'received_date': self.received_date.isoformat() if self.received_date else None,
+    }
+
+# Delete a part
+@app.route('/parts/<part_number>', methods=['DELETE'])
+def delete_part(part_number):
+    part = parts.query.filter_by(part_number=part_number).first_or_404()
+    db.session.delete(part)
+    db.session.commit()
+    return jsonify({'message': 'Part deleted successfully'})
+
 @app.route("/view_parts")
 @app.route("/view_parts/<job_number>")
 def view_parts(job_number=None):
@@ -363,6 +391,25 @@ def view_parts(job_number=None):
     else:
         all_parts = parts.query.all()
     return render_template("view_parts.html", parts=all_parts)
+
+@app.route('/parts/<part_number>', methods=['PUT'])
+def update_part(part_number):
+    # Verify the user is logged in and is an admin
+    if 'user_id' not in session or not session['is_admin']:
+        return jsonify({'error': 'Not authorized'}), 403
+    
+    # Query the part
+    part = Part.query.get(part_number)
+    if part is None:
+        return jsonify({'error': 'Part not found'}), 404
+
+    # Update the status
+    new_status = request.json.get('status')
+    if new_status is not None:
+        part.status = new_status
+        db.session.commit()
+
+    return jsonify({'message': 'Part updated successfully'})
 
 @app.route('/logout')
 def logout():

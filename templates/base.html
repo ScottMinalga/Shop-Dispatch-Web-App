@@ -19,13 +19,18 @@
         background-color: var(--navbar-bg);
       }
     </style>
+        <style>
+          #logo {
+              zoom: 3; /* 2 means 200% */
+          }
+      </style>
 </head>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="/"><img src="https://www.marubeni.com/en/common/img/ogp.jpg" alt="Marubeni" height="20" width="auto" ></a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <a class="navbar-brand" href="/"><img id="logo" src="https://www.marubeni.com/en/common/img/ogp.jpg" alt="Marubeni" height="20" width="auto"></a>          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
@@ -116,6 +121,8 @@
   <div class="footer">
     <p>Built and Designed by Scott Minalga</p>
   </div>
+  <div class="footer">
+    <p>Version 1.0</p>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybBudm9GoGtQ/6UW0J2q1Vl4dEtkgOUUkIsRB8ca4E4j9g4IT" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/6en8XCp+HHAAK5GSLf2xlYtvJ8U2Q4U+9cuEnJ" crossorigin="anonymous"></script>
