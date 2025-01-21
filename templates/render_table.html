@@ -1,36 +1,58 @@
-{% macro render_table(data) %}
-  <table class="table table-striped">
+{% macro render_table(data, parts_job_numbers) %}
+<table class="table table-striped">
     <thead>
-      <tr>
-        <th>Project Number</th>
-        <th>Job Number</th>
-        <th>Sales Order</th>
-        <th>Customer Name</th>
-        <th>Builder</th>
-        <th>Status</th>
-        <th>Notes</th>
-        <th>Due Date</th>
-        <th>Order Date</th>
-        <th>Ship Date</th>
-        <th>Order Quantity</th>
-      </tr>
+        <tr>
+            <th>Triangle</th>
+            <th>Project Number</th>
+            <th>Job Number</th>
+            <th>Sales Order</th>
+            <th>Customer Name</th>
+            <th>Builder</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Due Date</th>
+            <th>Order Date</th>
+            <th>Ship Date</th>
+            <th>Order Quantity</th>
+            <th>Actions</th>
+        </tr>
     </thead>
     <tbody>
-      {% for job in data %}
+        {% for job in data %}
         <tr>
-          <td>{{ job.project_number }}</td>
-          <td>{{ job.job_number }}</td>
-          <td>{{ job.sales_order }}</td>
-          <td>{{ job.customer_name }}</td>
-          <td>{{ job.builder }}</td>
-          <td>{{ job.status }}</td>
-          <td>{{ job.notes }}</td>
-          <td>{{ job.due_date }}</td>
-          <td>{{ job.order_date }}</td>
-          <td>{{ job.ship_date }}</td>
-          <td>{{ job.order_quantity }}</td>
+            <td>
+                {% if job.job_number in parts_job_numbers %}
+                <a href="{{ url_for('view_parts', job_number=job.job_number|string()) }}">
+                    <svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="red"></polygon></svg>
+                </a>
+                {% else %}
+                <svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="green"></polygon></svg>
+                {% endif %}
+            </td>
+            <td>{{ job.project_number }}</td>
+            <td>{{ job.job_number }}</td>
+            <td>{{ job.sales_order }}</td>
+            <td>{{ job.customer_name }}</td>
+            <td>{{ job.builder }}</td>
+            <td>{{ job.status }}</td>
+            <td>{{ job.notes }}</td>
+            <td>{{ job.due_date }}</td>
+            <td>{{ job.order_date }}</td>
+            <td>{{ job.ship_date }}</td>
+            <td>{{ job.order_quantity }}</td>
+            <td>
+                {% if session['username'] is defined %}
+                <div class="btn-group" role="group" aria-label="Actions">
+                    <button class="btn btn-warning btn-sm" onclick="showEditEntryModal('{{ job.job_number }}')">Edit</button>
+                    <button class="btn btn-primary btn-sm" onclick="showChangeTableModal('{{ job.job_number }}')">Change Table</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteEntry('{{ job.job_number }}')">Delete</button>
+                </div>
+                {% else %}
+                <span>Login to access actions</span>
+                {% endif %}
+            </td>
         </tr>
-      {% endfor %}
+        {% endfor %}
     </tbody>
-  </table>
+</table>
 {% endmacro %}

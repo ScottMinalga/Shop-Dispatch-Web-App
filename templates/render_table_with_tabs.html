@@ -1,129 +1,270 @@
 {% extends "base.html" %}
 
-{% macro render_table(data, parts_job_numbers) %}
-   <!-- Edit Entry Modal -->
-   <div id="editEntryModal" class="modal" style="display: none;">
-    <!-- Modal content -->
-    <div class="modal-content">
-        <form id="editEntryForm">
-            <input type="hidden" id="jobNumber" name="jobNumber"> <!-- hidden field for the job number -->
-            <label for="project_number">Project Number:</label>
-            <input type="text" id="project_number" name="project_number">
-            <!-- ...other fields... -->
-            <input type="submit" value="Save Changes">
-        </form>
-    </div>
-</div>
-    <table class="table table-striped custom-table">
-    <thead>
-      <tr>
-    </div>
-  </div>
-        <th>Triangle</th>
-        <th>Project Number</th>
-        <th>Job Number</th>
-        <th>Sales Order</th>
-        <th>Customer Name</th>
-        <th>Builder</th>
-        <th>Status</th>
-        <th>Notes</th>
-        <th>Due Date</th>
-        <th>Order Date</th>
-        <th>Ship Date</th>
-        <th>Order Quantity</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for job in data %}
-      <tr>
-        {% if job.job_number in parts_job_numbers %}
-          <td><a href="{{ url_for('view_parts', job_number=job.job_number|string()) }}"><svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="red" /></svg></a></td>
-        {% else %}
-          <td><svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="green" /></svg></td>
-        {% endif %}
-          <td>{{ job.project_number }}</td>
-          <td>{{ job.job_number }}</td>
-          <td>{{ job.sales_order }}</td>
-          <td>{{ job.customer_name }}</td>
-          <td>{{ job.builder }}</td>
-          <td>{{ job.status }}</td>
-          <td>{{ job.notes }}</td>
-          <td>{{ job.due_date }}</td>
-          <td>{{ job.order_date }}</td>
-          <td>{{ job.ship_date }}</td>
-          <td>{{ job.order_quantity }}</td>
-          {% if "user_id" in session and session["is_admin"] %}
-          <td>
-            <button type="button" class="btn btn-warning" onclick="showEditEntryModal('{{ job.job_number }}')">Edit</button>
-          </td>
-          <td>
-            <button type="button" class="btn btn-primary" onclick="changeTable('{{ job.job_number }}')">Change Table</button>
-          </td>
-          <td>
-            <button type="button" class="btn btn-danger" onclick="deleteEntry('{{ job.job_number }}')">Delete</button>
-          </td>
-          {% endif %}
-        </tr>
-        </tr>
-      {% endfor %}
-      <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    </tbody>
-  </table>
-{% endmacro %}
+{% from "render_table.html" import render_table %}
 
 {% block content %}
 <style>
-  .custom-table {
-    width: 140%; /* Set the width you desire */
-    left: -20%; /* Set the left position you desire */
-    position: relative; /* Make sure it's positioned relative to the browser window */
-  }
-</style>
-  <div class="container mt-5">
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <a class="nav-link active" id="ASM01-tab" data-toggle="tab" href="#ASM01" onclick="storeActiveTab('ASM01')">ASM01</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="ASM02-tab" data-toggle="tab" href="#ASM02" onclick="storeActiveTab('ASM02')">ASM02</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="archive-tab" data-toggle="tab" href="#archive" onclick="storeActiveTab('archive')">Archive</a>
-      </li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
-        {{ render_table(ASM01_data, parts_job_numbers) }}
-      </div>
-      <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
-        {{ render_table(ASM02_data, parts_job_numbers) }}
-      </div>
-      <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
-        {{ render_table(archive_data, parts_job_numbers) }}
-      </div>
-    </div>
-  </div>
-  <script>
-    function showEditEntryModal(jobNumber) {
-      // Get the modal and form
-      var modal = $("#editEntryModal");
-      var form = $("#editEntryForm");
-
-      // Set the job number
-      form.find('#jobNumber').val(jobNumber);
-
-      // Load the current entry data into the form
-      $.get("/get_entry_data", {jobNumber: jobNumber}, function(data) {
-        form.find('#project_number').val(data.project_number);
-        // ...load the other fields...
-
-        // Show the modal
-        modal.modal('show');
-      });
+    .modal-content {
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+
+    .custom-table {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .nav-tabs .nav-link {
+        color: #495057;
+        font-weight: bold;
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs" id="jobTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="ASM01-tab" data-bs-toggle="tab" href="#ASM01" role="tab" aria-controls="ASM01" aria-selected="true">ASM01</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="ASM02-tab" data-bs-toggle="tab" href="#ASM02" role="tab" aria-controls="ASM02" aria-selected="false">ASM02</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="archive-tab" data-bs-toggle="tab" href="#archive" role="tab" aria-controls="archive" aria-selected="false">Archive</a>
+        </li>
+    </ul>
+
+    <!-- Tabs Content -->
+    <div class="tab-content mt-3">
+        <!-- ASM01 Tab -->
+        <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
+            {{ render_table(ASM01_data, parts_job_numbers) }}
+        </div>
+
+        <!-- ASM02 Tab -->
+        <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
+            {{ render_table(ASM02_data, parts_job_numbers) }}
+        </div>
+
+        <!-- Archive Tab -->
+        <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
+            {{ render_table(archive_data, parts_job_numbers) }}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Entry Modal -->
+<div id="editEntryModal" class="modal fade" tabindex="-1" aria-labelledby="editEntryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEntryModalLabel">Edit Entry</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editEntryForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Hidden Job Number -->
+                        <input type="hidden" id="jobNumber" name="jobNumber">
+
+
+                        <!-- Project Number -->
+                        <div class="col-md-6 mb-3">
+                            <label for="project_number" class="form-label">Project Number</label>
+                            <input type="text" class="form-control" id="project_number" name="project_number" required>
+                        </div>
+
+                        <!-- Sales Order -->
+                        <div class="col-md-6 mb-3">
+                            <label for="sales_order" class="form-label">Sales Order</label>
+                            <input type="text" class="form-control" id="sales_order" name="sales_order" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Customer Name -->
+                        <div class="col-md-6 mb-3">
+                            <label for="customer_name" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                        </div>
+
+                        <!-- Builder -->
+                        <div class="col-md-6 mb-3">
+                            <label for="builder" class="form-label">Builder</label>
+                            <input type="text" class="form-control" id="builder" name="builder" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Status -->
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <input type="text" class="form-control" id="status" name="status" required>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-md-6 mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Due Date -->
+                        <div class="col-md-4 mb-3">
+                            <label for="due_date" class="form-label">Due Date</label>
+                            <input type="date" class="form-control" id="due_date" name="due_date" required>
+                        </div>
+
+                        <!-- Order Date -->
+                        <div class="col-md-4 mb-3">
+                            <label for="order_date" class="form-label">Order Date</label>
+                            <input type="date" class="form-control" id="order_date" name="order_date" required>
+                        </div>
+
+                        <!-- Ship Date -->
+                        <div class="col-md-4 mb-3">
+                            <label for="ship_date" class="form-label">Ship Date</label>
+                            <input type="date" class="form-control" id="ship_date" name="ship_date" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Order Quantity -->
+                        <div class="col-md-6 mb-3">
+                            <label for="order_quantity" class="form-label">Order Quantity</label>
+                            <input type="number" class="form-control" id="order_quantity" name="order_quantity" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Change Table Modal -->
+<div id="changeTableModal" class="modal fade" tabindex="-1" aria-labelledby="changeTableModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeTableModalLabel">Change Table</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="changeTableForm">
+                <div class="modal-body">
+                    <p>Select the table to which the entry should be moved:</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="new_table_name" id="ASM01" value="ASM01" required>
+                        <label class="form-check-label" for="ASM01">ASM01</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="new_table_name" id="ASM02" value="ASM02" required>
+                        <label class="form-check-label" for="ASM02">ASM02</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Change Table</button>
+                </div>
+                <!-- Hidden input for Job Number -->
+                <input type="hidden" id="changeTableJobNumber" name="job_number">
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+  <script>
+function showEditEntryModal(jobNumber) {
+    const modal = $("#editEntryModal");
+    const form = $("#editEntryForm");
+
+    // Populate the hidden jobNumber field
+    form.find("#jobNumber").val(jobNumber);
+
+    // Fetch and populate other fields
+    $.get("/get_entry_data", { jobNumber: jobNumber })
+        .done(function (data) {
+            form.find("#project_number").val(data.project_number);
+            form.find("#sales_order").val(data.sales_order);
+            form.find("#customer_name").val(data.customer_name);
+            form.find("#builder").val(data.builder);
+            form.find("#status").val(data.status);
+            form.find("#notes").val(data.notes);
+            form.find("#due_date").val(data.due_date);
+            form.find("#order_date").val(data.order_date);
+            form.find("#ship_date").val(data.ship_date);
+            form.find("#order_quantity").val(data.order_quantity);
+
+            modal.modal("show");
+        })
+        .fail(function () {
+            alert("Failed to fetch entry data. Please try again.");
+        });
+}
+
+function showChangeTableModal(jobNumber) {
+    const modal = $("#changeTableModal");
+    modal.find("#changeTableJobNumber").val(jobNumber); // Populate hidden job number field
+    modal.modal("show");
+}
+
+$("#changeTableForm").on("submit", function (e) {
+    e.preventDefault();
+
+    const jobNumber = $("#changeTableJobNumber").val();
+    const newTableName = $("input[name='new_table_name']:checked").val();
+
+    if (!newTableName) {
+        alert("Please select a table.");
+        return;
+    }
+
+    $.ajax({
+        url: '/change_table',
+        type: 'POST',
+        data: {
+            job_number: jobNumber,
+            new_table_name: newTableName
+        },
+        success: function (response) {
+            if (response.success) {
+                alert(response.message);
+                location.reload();
+            } else {
+                alert("Error: " + response.message);
+            }
+        },
+        error: function (xhr) {
+            console.error("Error:", xhr.responseText);
+            alert("Failed to change table. Please check the logs.");
+        }
+    });
+});
+
+
+
+
+
+
 </script>
   <script>
+      const formData = $("#editEntryForm").serialize();
+console.log("Submitting form data: ", formData);
+
     function deleteEntry(jobNumber) {
       console.log("Delete Entry function called for jobNumber: ", jobNumber);
       var confirmation = confirm("Are you sure you want to delete this entry?");
@@ -152,6 +293,7 @@
       localStorage.setItem('activeTab', tabId);
     }
 
+
 function restoreActiveTab() {
   const activeTabId = localStorage.getItem('activeTab');
   if (activeTabId) {
@@ -176,6 +318,160 @@ function restoreActiveTab() {
     }
   }
 }
+
+function changeTable(jobNumber) {
+    const newTable = prompt("Enter the new table name (ASM01, ASM02, archive):");
+    if (newTable) {
+        $.ajax({
+            url: `/change_table/${jobNumber}`,
+            type: 'POST',
+            data: { new_table_name: newTable },
+            success: function(response) {
+                if (response.success) {
+                    alert(response.message);
+                    location.reload();
+                } else {
+                    alert("Error: " + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error:", error);
+            }
+        });
+    }
+}
+
+function deleteEntry(jobNumber) {
+    const confirmation = confirm("Are you sure you want to delete this entry?");
+    if (confirmation) {
+        $.ajax({
+            url: '/delete_entry',
+            type: 'POST',
+            data: { job_number: jobNumber },
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert("Failed to delete entry.");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error:", error);
+            }
+        });
+    }
+}
+
+$(document).ready(function () {
+    // Function to open the modal and populate fields
+    window.showEditEntryModal = function (jobNumber) {
+        const modal = $("#editEntryModal");
+        const form = $("#editEntryForm");
+
+        // Set the job number in the hidden field
+        form.find("#jobNumber").val(jobNumber);
+
+        // Fetch the current entry data
+        $.get("/get_entry_data", { jobNumber: jobNumber })
+    .done(function (data) {
+        form.find("#project_number").val(data.project_number);
+        form.find("#sales_order").val(data.sales_order);
+        form.find("#customer_name").val(data.customer_name);
+        form.find("#builder").val(data.builder);
+        form.find("#status").val(data.status);
+        form.find("#notes").val(data.notes);
+        form.find("#due_date").val(data.due_date);
+        form.find("#order_date").val(data.order_date);
+        form.find("#ship_date").val(data.ship_date);
+        form.find("#order_quantity").val(data.order_quantity);
+
+        modal.modal("show");
+    })
+    .fail(function () {
+        alert("Failed to fetch entry data. Please try again.");
+    });
+
+    };
+
+    // Handle form submission
+    $("#editEntryForm").on("submit", function (e) {
+    e.preventDefault();
+
+    const formData = $(this).serialize();
+    console.log("Submitting form data:", formData); // Debugging Log
+
+    $.ajax({
+        url: "/update_entry",
+        type: "POST",
+        data: formData,
+        success: function (response) {
+            console.log("Response from server:", response);
+            alert(response.message || "Entry updated successfully!");
+            location.reload();
+        },
+        error: function (xhr) {
+            console.error("Error:", xhr.responseText);
+            alert("Failed to update entry. Please check the logs.");
+        },
+    });
+});
+
+
+
+
+
+
+});
+
+
+
+    // Show the modal with pre-filled data
+    function showEditEntryModal(jobNumber) {
+    const modal = $("#editEntryModal");
+    const form = $("#editEntryForm");
+
+    // Fetch entry data
+    $.get("/get_entry_data", { jobNumber: jobNumber }, function (data) {
+        form.find("#project_number").val(data.project_number);
+        form.find("#sales_order").val(data.sales_order);
+        form.find("#customer_name").val(data.customer_name);
+        form.find("#builder").val(data.builder);
+        form.find("#status").val(data.status);
+        form.find("#notes").val(data.notes);
+        form.find("#due_date").val(data.due_date);
+        form.find("#order_date").val(data.order_date);
+        form.find("#ship_date").val(data.ship_date);
+        form.find("#order_quantity").val(data.order_quantity);
+
+        // Show the modal
+        modal.modal("show");
+    }); // Close $.get
+} // Close function
+
+function deleteEntry(jobNumber) {
+    const confirmation = confirm("Are you sure you want to move this entry to the archive?");
+    if (confirmation) {
+        $.ajax({
+            url: '/delete_entry',
+            type: 'POST',
+            data: { job_number: jobNumber },
+            success: function (response) {
+                if (response.status === 'success') {
+                    alert(response.message);
+                    location.reload(); // Reload the page to reflect changes
+                } else {
+                    alert("Error: " + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", xhr.responseText);
+                alert("Failed to move entry to archive. Please try again.");
+            }
+        });
+    }
+}
+
+
 
 document.addEventListener('DOMContentLoaded', restoreActiveTab);
 

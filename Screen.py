@@ -27,7 +27,7 @@ class ASM01(db.Model):
     builder = db.Column(db.String(100))
     status = db.Column(db.String(100))
     notes = db.Column(db.String(500))
-    due_date =db.Column(db.String(100))
+    due_date = db.Column(db.String(100))
     order_date = db.Column(db.String(100))
     ship_date = db.Column(db.String(100))
     order_quantity = db.Column(db.String(100))
@@ -44,6 +44,22 @@ class ASM01(db.Model):
         self.order_date = order_date
         self.ship_date = ship_date
         self.order_quantity = order_quantity
+
+    def to_dict(self):
+        return {
+            'project_number': self.project_number,
+            'job_number': self.job_number,
+            'sales_order': self.sales_order,
+            'customer_name': self.customer_name,
+            'builder': self.builder,
+            'status': self.status,
+            'notes': self.notes,
+            'due_date': self.due_date,
+            'order_date': self.order_date,
+            'ship_date': self.ship_date,
+            'order_quantity': self.order_quantity,
+        }
+
 
 class ASM02(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
@@ -72,6 +88,21 @@ class ASM02(db.Model):
         self.ship_date = ship_date
         self.order_quantity = order_quantity
 
+    def to_dict(self):
+        return {
+            'project_number': self.project_number,
+            'job_number': self.job_number,
+            'sales_order': self.sales_order,
+            'customer_name': self.customer_name,
+            'builder': self.builder,
+            'status': self.status,
+            'notes': self.notes,
+            'due_date': self.due_date,
+            'order_date': self.order_date,
+            'ship_date': self.ship_date,
+            'order_quantity': self.order_quantity,
+        }
+
 class archive(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
     project_number = db.Column(db.String(100))
@@ -98,6 +129,21 @@ class archive(db.Model):
         self.order_date = order_date
         self.ship_date = ship_date
         self.order_quantity = order_quantity
+
+    def to_dict(self):
+        return {
+            'project_number': self.project_number,
+            'job_number': self.job_number,
+            'sales_order': self.sales_order,
+            'customer_name': self.customer_name,
+            'builder': self.builder,
+            'status': self.status,
+            'notes': self.notes,
+            'due_date': self.due_date,
+            'order_date': self.order_date,
+            'ship_date': self.ship_date,
+            'order_quantity': self.order_quantity,
+        }
 
 class parts(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
@@ -182,50 +228,6 @@ def view():
         archive_data=archive_data,
         parts_job_numbers=parts_job_numbers,
     )
-
-@app.route("/change_table/<int:entry_id>", methods=["POST"])
-def change_table(entry_id):
-    new_table_name = request.form.get('new_table_name')
-
-    if new_table_name == "ASM01":
-        old_model_class = [ASM02, archive]
-        new_model_class = ASM01
-    elif new_table_name == "ASM02":
-        old_model_class = [ASM01, archive]
-        new_model_class = ASM02
-    elif new_table_name == "archive":
-        old_model_class = [ASM01, ASM02]
-        new_model_class = archive
-    else:
-        return jsonify(success=False, message="Invalid table name.")
-
-    for model in old_model_class:
-        entry = model.query.get(entry_id)
-        if entry is not None:
-            new_entry = new_model_class(**entry.__dict__)
-            db.session.delete(entry)
-            db.session.add(new_entry)
-            db.session.commit()
-            return jsonify(success=True, message="Table changed successfully!")
-
-    return jsonify(success=False, message="Entry not found.")
-
-
-@app.route('/delete_entry', methods=['POST'])
-def delete_entry():
-    print('Form data:', request.form)  # This will print the entire form data.
-    job_number = request.form.get('job_number')
-    print('Job number:', job_number)
-    models = [ASM01, ASM02, archive, parts]  # assuming you want to delete from these tables
-    # logic to delete entry based on job_number
-    try:
-        for model in models:
-            db.session.query(model).filter(model.job_number == job_number).delete()
-        db.session.commit()
-        return jsonify({'status': 'success'})
-    except Exception as e:
-        print("Error:", str(e))
-        return jsonify({'status': 'error', 'message': str(e)})
 
 
 def has_matching_job_number(parts, job_number):
@@ -497,10 +499,185 @@ def login():
 
     return render_template('login.html')
 
+# Route to return all jobs from ASM01, ASM02, and archive in JSON format
+@app.route('/api/jobs', methods=['GET'])
+def get_all_jobs():
+    asm01_jobs = ASM01.query.all()
+    asm02_jobs = ASM02.query.all()
+    archive_jobs = archive.query.all()
+
+    # Convert data to list of dictionaries
+    asm01_data = [job.__dict__ for job in asm01_jobs]
+    asm02_data = [job.__dict__ for job in asm02_jobs]
+    archive_data = [job.__dict__ for job in archive_jobs]
+
+    # Remove the SQLAlchemy state information that isn't JSON serializable
+    for job in asm01_data + asm02_data + archive_data:
+        job.pop('_sa_instance_state', None)
+
+    return jsonify({
+        'asm01_jobs': asm01_data,
+        'asm02_jobs': asm02_data,
+        'archive_jobs': archive_data
+    })
+
+# Route to return a specific job from ASM01, ASM02, or archive by job_number
+@app.route('/api/jobs/<string:job_number>', methods=['GET'])
+def get_job(job_number):
+    # Search in all job tables for the job_number
+    job = ASM01.query.filter_by(job_number=job_number).first() or \
+          ASM02.query.filter_by(job_number=job_number).first() or \
+          archive.query.filter_by(job_number=job_number).first()
+
+    if not job:
+        return jsonify({'error': 'Job not found'}), 404
+
+    # Convert job to dictionary and remove SQLAlchemy state information
+    job_data = job.__dict__
+    job_data.pop('_sa_instance_state', None)
+
+    return jsonify(job_data)
+
+
+@app.route('/get_entry_data', methods=['GET'])
+def get_entry_data():
+    job_number = request.args.get('jobNumber')
+    entry = ASM01.query.filter_by(job_number=job_number).first() or \
+            ASM02.query.filter_by(job_number=job_number).first() or \
+            archive.query.filter_by(job_number=job_number).first()
+
+    if not entry:
+        return jsonify({'error': 'Entry not found'}), 404
+
+    return jsonify({
+        'project_number': entry.project_number,
+        'job_number': entry.job_number,
+        'sales_order': entry.sales_order,
+        'customer_name': entry.customer_name,
+        'builder': entry.builder,
+        'status': entry.status,
+        'notes': entry.notes,
+        'due_date': entry.due_date,
+        'order_date': entry.order_date,
+        'ship_date': entry.ship_date,
+        'order_quantity': entry.order_quantity
+    })
+
+
+@app.route('/update_entry', methods=['POST'])
+def update_entry():
+    print("Received form data: ", request.form)  # Debug log for form data
+
+    job_number = request.form.get('jobNumber')
+    if not job_number:
+        return jsonify({'error': 'jobNumber is missing'}), 400
+
+    # Fetch the original entry
+    entry = ASM01.query.filter_by(job_number=job_number).first() or \
+            ASM02.query.filter_by(job_number=job_number).first() or \
+            archive.query.filter_by(job_number=job_number).first()
+
+    if not entry:
+        return jsonify({'error': f'Entry with job number {job_number} not found'}), 404
+
+    try:
+        # Update fields from the form data
+        entry.project_number = request.form.get('project_number')
+        entry.sales_order = request.form.get('sales_order')
+        entry.customer_name = request.form.get('customer_name')
+        entry.builder = request.form.get('builder')
+        entry.status = request.form.get('status')
+        entry.notes = request.form.get('notes')
+        entry.due_date = request.form.get('due_date')
+        entry.order_date = request.form.get('order_date')
+        entry.ship_date = request.form.get('ship_date')
+        entry.order_quantity = request.form.get('order_quantity')
+
+        db.session.commit()
+        return jsonify({'message': 'Entry updated successfully!'})
+    except Exception as e:
+        print(f"Error updating entry: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update entry'}), 500
+
+@app.route('/change_table', methods=['POST'])
+def change_table():
+    job_number = request.form.get('job_number')
+    new_table_name = request.form.get('new_table_name')
+
+    if not job_number:
+        return jsonify({'success': False, 'message': 'Job number is missing.'}), 400
+    if not new_table_name:
+        return jsonify({'success': False, 'message': 'Table name is missing.'}), 400
+
+    try:
+        # Fetch the entry from the current table
+        entry = ASM01.query.filter_by(job_number=job_number).first() or \
+                ASM02.query.filter_by(job_number=job_number).first() or \
+                archive.query.filter_by(job_number=job_number).first()
+
+        if not entry:
+            return jsonify({'success': False, 'message': 'Entry not found.'}), 404
+
+        # Remove entry from current table and add to new table
+        if new_table_name == "ASM01":
+            db.session.add(ASM01(**entry.to_dict()))
+        elif new_table_name == "ASM02":
+            db.session.add(ASM02(**entry.to_dict()))
+        db.session.delete(entry)
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': f'Entry moved to {new_table_name} successfully!'})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error moving entry: {e}")
+        return jsonify({'success': False, 'message': 'Failed to move entry. Please try again later.'}), 500
+
+@app.route('/delete_entry', methods=['POST'])
+def delete_entry():
+    job_number = request.form.get('job_number')
+
+    if not job_number:
+        return jsonify({'status': 'error', 'message': 'Job number is missing.'}), 400
+
+    # Attempt to find the job in ASM01 or ASM02
+    entry = ASM01.query.filter_by(job_number=job_number).first() or \
+            ASM02.query.filter_by(job_number=job_number).first()
+
+    if not entry:
+        return jsonify({'status': 'error', 'message': 'Entry not found.'}), 404
+
+    try:
+        # Move the entry to the archive
+        archived_entry = archive(
+            project_number=entry.project_number,
+            job_number=entry.job_number,
+            sales_order=entry.sales_order,
+            customer_name=entry.customer_name,
+            builder=entry.builder,
+            status=entry.status,
+            notes=entry.notes,
+            due_date=entry.due_date,
+            order_date=entry.order_date,
+            ship_date=entry.ship_date,
+            order_quantity=entry.order_quantity
+        )
+        db.session.add(archived_entry)
+
+        # Delete the entry from the original table
+        db.session.delete(entry)
+        db.session.commit()
+
+        return jsonify({'status': 'success', 'message': 'Entry moved to archive successfully!'})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error archiving entry: {e}")
+        return jsonify({'status': 'error', 'message': 'Failed to archive entry.'}), 500
+
+
 #run the app and creates db database if not already done
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         create_initial_admin()
-    app.run(debug=True)
-
+    app.run(host="10.120.108.60", port=5000, debug=True)
