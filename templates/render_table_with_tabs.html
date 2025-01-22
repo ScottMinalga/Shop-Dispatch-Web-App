@@ -46,17 +46,23 @@
     <div class="tab-content mt-3">
         <!-- ASM01 Tab -->
         <div class="tab-pane fade show active" id="ASM01" role="tabpanel" aria-labelledby="ASM01-tab">
-            {{ render_table(ASM01_data, parts_job_numbers) }}
+            <table>
+            {{ render_table(ASM01_data, parts_job_numbers, "sortable-table-body-ASM01") }}
+            </table>
         </div>
 
         <!-- ASM02 Tab -->
         <div class="tab-pane fade" id="ASM02" role="tabpanel" aria-labelledby="ASM02-tab">
-            {{ render_table(ASM02_data, parts_job_numbers) }}
+            <table>
+            {{ render_table(ASM02_data, parts_job_numbers, "sortable-table-body-ASM02") }}
+            </table>
         </div>
 
         <!-- Archive Tab -->
         <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
-            {{ render_table(archive_data, parts_job_numbers) }}
+            <table>
+            {{ render_table(archive_data, parts_job_numbers, "sortable-table-body-archive") }}
+            </table>
         </div>
     </div>
 </div>
@@ -256,12 +262,25 @@ $("#changeTableForm").on("submit", function (e) {
 });
 
 
-
-
-
-
+fetch("/update_order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ order }),
+})
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            alert("Order updated successfully!");
+        } else {
+            console.error("Server failed to update order:", data.message);
+            alert("Failed to update order. Please try again.");
+        }
+    })
+    .catch((error) => {
+        console.error("Error updating order:", error);
+});
 </script>
-  <script>
+<script>
       const formData = $("#editEntryForm").serialize();
 console.log("Submitting form data: ", formData);
 
@@ -294,30 +313,29 @@ console.log("Submitting form data: ", formData);
     }
 
 
-function restoreActiveTab() {
-  const activeTabId = localStorage.getItem('activeTab');
-  if (activeTabId) {
-    // Deactivate all tabs
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.classList.remove('active');
-      link.setAttribute('aria-selected', 'false');
-    });
+    function restoreActiveTab() {
+    const activeTabId = localStorage.getItem("activeTab");
+    if (activeTabId) {
+        const activeTab = document.getElementById(`${activeTabId}-tab`);
+        const activePane = document.getElementById(activeTabId);
 
-    // Deactivate all tab content panes
-    document.querySelectorAll('.tab-pane').forEach(pane => {
-      pane.classList.remove('show', 'active');
-    });
+        if (activeTab && activePane) {
+            document.querySelectorAll(".nav-link").forEach((tab) => {
+                tab.classList.remove("active");
+                tab.setAttribute("aria-selected", "false");
+            });
 
-    // Activate the stored tab and its content pane
-    const activeTab = document.getElementById(`${activeTabId}-tab`);
-    const activePane = document.getElementById(activeTabId);
-    if (activeTab && activePane) {
-      activeTab.classList.add('active');
-      activeTab.setAttribute('aria-selected', 'true');
-      activePane.classList.add('show', 'active');
+            document.querySelectorAll(".tab-pane").forEach((pane) => {
+                pane.classList.remove("show", "active");
+            });
+
+            activeTab.classList.add("active");
+            activeTab.setAttribute("aria-selected", "true");
+            activePane.classList.add("show", "active");
+        }
     }
-  }
 }
+
 
 function changeTable(jobNumber) {
     const newTable = prompt("Enter the new table name (ASM01, ASM02, archive):");
@@ -415,16 +433,109 @@ $(document).ready(function () {
         },
     });
 });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const isLoggedIn = {{ is_logged_in | tojson }};
+        
+        if (isLoggedIn) {
+            const tableBodies = [
+                "sortable-table-body-ASM01",
+                "sortable-table-body-ASM02",
+                "sortable-table-body-archive",
+            ];
+
+            tableBodies.forEach((id) => {
+                const tableBody = document.getElementById(id);
+                if (tableBody) {
+                    new Sortable(tableBody, {
+                        animation: 150,
+                        handle: "tr",
+                        onEnd: () => {
+                            const order = Array.from(tableBody.children).map((row, index) => ({
+                                job_number: row.dataset.jobNumber,
+                                order: index,
+                            }));
+
+                            fetch("/update_order", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ order }),
+                            })
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    if (!data.success) {
+                                        alert("Failed to update order.");
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.error("Error updating order:", error);
+                                });
+                        },
+                    });
+                }
+            });
+        }
+    });
+</script>
 
 
+<script>
+    // Re-initialize SortableJS on tab switch
+    document.querySelectorAll(".nav-tabs .nav-link").forEach((tab) => {
+    tab.addEventListener("shown.bs.tab", (event) => {
+        const targetTabId = event.target.getAttribute("href").substring(1);
+        const targetTableBody = document.querySelector(`#${targetTabId} tbody`);
 
 
-
-
+        if (targetTableBody && !Sortable.get(targetTableBody)) {
+            new Sortable(targetTableBody, {
+                animation: 150,
+                handle: "tr",
+            });
+        }
+    });
 });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Get the active tab from localStorage
+    const activeTabId = localStorage.getItem('activeTab');
 
+    if (activeTabId) {
+        // Find the tab and activate it
+        const activeTab = document.querySelector(`#${activeTabId}-tab`);
+        const activePane = document.querySelector(`#${activeTabId}`);
 
+        if (activeTab && activePane) {
+            // Activate the tab link
+            document.querySelectorAll('.nav-link').forEach(tab => {
+                tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
+            });
+            activeTab.classList.add('active');
+            activeTab.setAttribute('aria-selected', 'true');
 
+            // Activate the tab pane
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+            activePane.classList.add('show', 'active');
+        }
+    }
+
+    // Save the active tab to localStorage on tab click
+    document.querySelectorAll('.nav-link').forEach(tab => {
+        tab.addEventListener('click', function () {
+            const targetTabId = tab.getAttribute('href').substring(1); // Remove the '#' from href
+            localStorage.setItem('activeTab', targetTabId);
+        });
+    });
+});
+</script>
+
+<script>
     // Show the modal with pre-filled data
     function showEditEntryModal(jobNumber) {
     const modal = $("#editEntryModal");
@@ -471,8 +582,6 @@ function deleteEntry(jobNumber) {
     }
 }
 
-
-
 document.addEventListener('DOMContentLoaded', restoreActiveTab);
 
 // Refresh the page every 3 minutes (180000 milliseconds)
@@ -480,4 +589,5 @@ setInterval(function() {
   location.reload();
 }, 180000);
 </script>
+
 {% endblock %}

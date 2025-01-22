@@ -1,4 +1,4 @@
-{% macro render_table(data, parts_job_numbers) %}
+{% macro render_table(data, parts_job_numbers, tbody_id, is_logged_in) %}
 <table class="table table-striped">
     <thead>
         <tr>
@@ -17,29 +17,36 @@
             <th>Actions</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="{{ tbody_id }}" {% if not is_logged_in %}class="no-drag"{% endif %}>
         {% for job in data %}
-        <tr>
+        <tr id="job-{{ job.job_number }}" data-job-number="{{ job.job_number }}">
+            <!-- Triangle Column -->
             <td>
                 {% if job.job_number in parts_job_numbers %}
-                <a href="{{ url_for('view_parts', job_number=job.job_number|string()) }}">
-                    <svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="red"></polygon></svg>
+                <a href="{{ url_for('view_parts', job_number=job.job_number|string()) }}" aria-label="View parts">
+                    <svg width="20" height="20">
+                        <polygon points="10,0 20,20 0,20" fill="red"></polygon>
+                    </svg>
                 </a>
                 {% else %}
-                <svg width="20" height="20"><polygon points="10,0 20,20 0,20" fill="green"></polygon></svg>
+                <svg width="20" height="20" aria-label="No parts available">
+                    <polygon points="10,0 20,20 0,20" fill="green"></polygon>
+                </svg>
                 {% endif %}
             </td>
-            <td>{{ job.project_number }}</td>
-            <td>{{ job.job_number }}</td>
-            <td>{{ job.sales_order }}</td>
-            <td>{{ job.customer_name }}</td>
-            <td>{{ job.builder }}</td>
-            <td>{{ job.status }}</td>
-            <td>{{ job.notes }}</td>
-            <td>{{ job.due_date }}</td>
-            <td>{{ job.order_date }}</td>
-            <td>{{ job.ship_date }}</td>
-            <td>{{ job.order_quantity }}</td>
+            <!-- Job Details -->
+            <td>{{ job.project_number or 'N/A' }}</td>
+            <td>{{ job.job_number or 'N/A' }}</td>
+            <td>{{ job.sales_order or 'N/A' }}</td>
+            <td>{{ job.customer_name or 'N/A' }}</td>
+            <td>{{ job.builder or 'N/A' }}</td>
+            <td>{{ job.status or 'N/A' }}</td>
+            <td>{{ job.notes or 'N/A' }}</td>
+            <td>{{ job.due_date or 'N/A' }}</td>
+            <td>{{ job.order_date or 'N/A' }}</td>
+            <td>{{ job.ship_date or 'N/A' }}</td>
+            <td>{{ job.order_quantity or 'N/A' }}</td>
+            <!-- Actions -->
             <td>
                 {% if session['username'] is defined %}
                 <div class="btn-group" role="group" aria-label="Actions">

@@ -6,6 +6,9 @@ from functools import wraps
 from flask_wtf import FlaskForm
 from wtforms import StringField, DateField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import DataRequired
+from sqlalchemy import Column, Integer
+
+
 
 # Create instance of the app
 app = Flask(__name__)
@@ -31,8 +34,9 @@ class ASM01(db.Model):
     order_date = db.Column(db.String(100))
     ship_date = db.Column(db.String(100))
     order_quantity = db.Column(db.String(100))
+    order = db.Column(db.Integer)
 
-    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity):
+    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity, order):
         self.project_number = project_number
         self.job_number = job_number
         self.sales_order = sales_order
@@ -44,6 +48,7 @@ class ASM01(db.Model):
         self.order_date = order_date
         self.ship_date = ship_date
         self.order_quantity = order_quantity
+        self.order = order
 
     def to_dict(self):
         return {
@@ -74,8 +79,9 @@ class ASM02(db.Model):
     order_date = db.Column(db.String(100))
     ship_date = db.Column(db.String(100))
     order_quantity = db.Column(db.String(100))
+    order = db.Column(db.Integer)
 
-    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity):
+    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity, order):
         self.project_number = project_number
         self.job_number = job_number
         self.sales_order = sales_order
@@ -87,6 +93,7 @@ class ASM02(db.Model):
         self.order_date = order_date
         self.ship_date = ship_date
         self.order_quantity = order_quantity
+        self.order = order
 
     def to_dict(self):
         return {
@@ -116,8 +123,9 @@ class archive(db.Model):
     order_date = db.Column(db.String(100))
     ship_date = db.Column(db.String(100))
     order_quantity = db.Column(db.String(100))
+    order = db.Column(db.Integer)
 
-    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity):
+    def __init__(self, project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity, order):
         self.project_number = project_number
         self.job_number = job_number
         self.sales_order = sales_order
@@ -129,6 +137,7 @@ class archive(db.Model):
         self.order_date = order_date
         self.ship_date = ship_date
         self.order_quantity = order_quantity
+        self.order = order
 
     def to_dict(self):
         return {
@@ -208,18 +217,14 @@ def home():
 
 @app.route("/view")
 def view():
-    ASM01_data = ASM01.query.all()
-    ASM02_data = ASM02.query.all()
-    archive_data = archive.query.all()
+    ASM01_data = ASM01.query.order_by(ASM01.order.asc()).all()
+    ASM02_data = ASM02.query.order_by(ASM02.order.asc()).all()
+    archive_data = archive.query.order_by(archive.order.asc()).all()
 
-    # Sort the data by 'ship_date'
-    ASM01_data = sorted(ASM01_data, key=lambda x: x.ship_date)
-    ASM02_data = sorted(ASM02_data, key=lambda x: x.ship_date)
-    archive_data = sorted(archive_data, key=lambda x: x.ship_date)
-
-    # Get all parts and create a set of unique job numbers
     all_parts = parts.query.all()
     parts_job_numbers = {part.job_number for part in all_parts}
+
+    is_logged_in = "username" in session  # Determine login status
 
     return render_template(
         'render_table_with_tabs.html',
@@ -227,7 +232,9 @@ def view():
         ASM02_data=ASM02_data,
         archive_data=archive_data,
         parts_job_numbers=parts_job_numbers,
+        is_logged_in=is_logged_in,
     )
+
 
 
 def has_matching_job_number(parts, job_number):
@@ -261,74 +268,61 @@ def add():
 
     if request.method == 'POST':
         target_table = request.form['target_table']
-        
-        if target_table == 'ASM01-tab':
-            project_number = request.form["projectnum"]
-            job_number = request.form["jobnum"]
-            sales_order = request.form["salesnum"]
-            customer_name = request.form["customername"]
-            builder = request.form["builder"]
-            status = request.form["status"]
-            order_quantity = request.form["order_quantity"]
-            due_date = request.form["due_date"]
-            order_date = request.form["order_date"]
-            ship_date = request.form["ship_date"]
-            notes = request.form["notes"]
 
-            new_job01 = ASM01(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+        # Retrieve form data
+        project_number = request.form["projectnum"]
+        job_number = request.form["jobnum"]
+        sales_order = request.form["salesnum"]
+        customer_name = request.form["customername"]
+        builder = request.form["builder"]
+        status = request.form["status"]
+        order_quantity = request.form["order_quantity"]
+        due_date = request.form["due_date"]
+        order_date = request.form["order_date"]
+        ship_date = request.form["ship_date"]
+        notes = request.form["notes"]
+
+        # Calculate the `order` value dynamically (default to 0 if no rows exist)
+        if target_table == 'ASM01-tab':
+            last_entry = ASM01.query.order_by(ASM01.order.desc()).first()
+            order = (last_entry.order + 1) if last_entry else 0
+
+            new_job01 = ASM01(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity, order)
             db.session.add(new_job01)
             db.session.commit()
             flash("Job added successfully!")
             ASM01_data = ASM01.query.all()
             return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
-        
-        elif target_table == 'ASM02-tab':
-            project_number = request.form["projectnum"]
-            job_number = request.form["jobnum"]
-            sales_order = request.form["salesnum"]
-            customer_name = request.form["customername"]
-            builder = request.form["builder"]
-            status = request.form["status"]
-            order_quantity = request.form["order_quantity"]
-            due_date = request.form["due_date"]
-            order_date = request.form["order_date"]
-            ship_date = request.form["ship_date"]
-            notes = request.form["notes"]
 
-            new_job02 = ASM02(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+        elif target_table == 'ASM02-tab':
+            last_entry = ASM02.query.order_by(ASM02.order.desc()).first()
+            order = (last_entry.order + 1) if last_entry else 0
+
+            new_job02 = ASM02(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity, order)
             db.session.add(new_job02)
             db.session.commit()
             flash("Job added successfully!")
             ASM02_data = ASM02.query.all()
             return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
-        
-        elif target_table == 'archive-tab':
-            project_number = request.form["projectnum"]
-            job_number = request.form["jobnum"]
-            sales_order = request.form["salesnum"]
-            customer_name = request.form["customername"]
-            builder = request.form["builder"]
-            status = request.form["status"]
-            order_quantity = request.form["order_quantity"]
-            due_date = request.form["due_date"]
-            order_date = request.form["order_date"]
-            ship_date = request.form["ship_date"]
-            notes = request.form["notes"]
 
-            new_jobA = archive(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity)
+        elif target_table == 'archive-tab':
+            last_entry = archive.query.order_by(archive.order.desc()).first()
+            order = (last_entry.order + 1) if last_entry else 0
+
+            new_jobA = archive(project_number, job_number, sales_order, customer_name, builder, status, notes, due_date, order_date, ship_date, order_quantity, order)
             db.session.add(new_jobA)
             db.session.commit()
             flash("Job added successfully!")
             archive_data = archive.query.all()
             return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
-        
+
         else:
             # Handle invalid input
             flash("Error, Try Again, Make sure you fill out the form correctly, If you keep getting error please see system admin")
             return redirect(url_for('add'))
 
     return render_template("new.html", ASM01_data=ASM01_data, ASM02_data=ASM02_data, archive_data=archive_data)
-   
+
 @app.route("/add_part", methods=["GET", "POST"])
 @admin_required
 def add_part():
@@ -619,11 +613,20 @@ def change_table():
         if not entry:
             return jsonify({'success': False, 'message': 'Entry not found.'}), 404
 
-        # Remove entry from current table and add to new table
+        # Convert entry to dictionary and include the order field
+        entry_data = entry.to_dict()
+        entry_data['order'] = entry.order  # Explicitly add the 'order' field
+
+        # Remove entry from the current table and add it to the new table
         if new_table_name == "ASM01":
-            db.session.add(ASM01(**entry.to_dict()))
+            db.session.add(ASM01(**entry_data))
         elif new_table_name == "ASM02":
-            db.session.add(ASM02(**entry.to_dict()))
+            db.session.add(ASM02(**entry_data))
+        elif new_table_name == "archive":
+            db.session.add(archive(**entry_data))
+        else:
+            return jsonify({'success': False, 'message': 'Invalid table name provided.'}), 400
+
         db.session.delete(entry)
         db.session.commit()
 
@@ -675,9 +678,67 @@ def delete_entry():
         return jsonify({'status': 'error', 'message': 'Failed to archive entry.'}), 500
 
 
+@app.route('/update_order', methods=['POST'])
+def update_order():
+    try:
+        data = request.get_json()
+        print("Received order data:", data)  # Debugging log
+
+        order = data.get('order', [])
+        if not isinstance(order, list):
+            return jsonify({'success': False, 'message': 'Invalid order format.'}), 400
+
+        for item in order:
+            job_number = item.get("job_number")
+            new_order = item.get("order")
+
+            if not job_number or not isinstance(new_order, int):
+                print(f"Skipping invalid item: {item}")
+                continue
+
+            job = ASM01.query.filter_by(job_number=job_number).first() or \
+                  ASM02.query.filter_by(job_number=job_number).first() or \
+                  archive.query.filter_by(job_number=job_number).first()
+
+            if job:
+                job.order = new_order
+            else:
+                print(f"No matching job found for job_number: {job_number}")
+
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Order updated successfully.'})
+    except Exception as e:
+        print(f"Error updating order: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+
+with app.app_context():
+    if not hasattr(ASM01, 'order'):
+        try:
+            db.engine.execute('ALTER TABLE asm01 ADD COLUMN "order" INTEGER DEFAULT 0')
+        except Exception as e:
+            print(f"Column 'order' might already exist in ASM01: {e}")
+
+    if not hasattr(ASM02, 'order'):
+        try:
+            db.engine.execute('ALTER TABLE asm02 ADD COLUMN "order" INTEGER DEFAULT 0')
+        except Exception as e:
+            print(f"Column 'order' might already exist in ASM02: {e}")
+
+    if not hasattr(archive, 'order'):
+        try:
+            db.engine.execute('ALTER TABLE archive ADD COLUMN "order" INTEGER DEFAULT 0')
+        except Exception as e:
+            print(f"Column 'order' might already exist in archive: {e}")
+
+    db.session.commit()
+
+
+
 #run the app and creates db database if not already done
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         create_initial_admin()
-    app.run(host="10.120.108.60", port=5000, debug=True)
+    app.run(host="10.120.108.19", port=5000, debug=True)

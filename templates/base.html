@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html>
+<!-- MAIN TEMPLATE FOR ALL PAGES -->
+
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -22,8 +24,10 @@
     </style>
         <style>
           #logo {
-              zoom: 3; /* 2 means 200% */
+              height: 50px; /* Adjust height as needed */
+              width: auto; /* Maintain aspect ratio */
           }
+
       </style>
 </head>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -31,7 +35,9 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="/"><img id="logo" src="https://www.marubeni.com/en/common/img/ogp.jpg" alt="Marubeni" height="20" width="auto"></a>          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <a class="navbar-brand" href="/">
+              <img id="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Shop Dispatch Logo" height="40" width="auto">
+          </a>
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
@@ -76,8 +82,7 @@
         {% endblock %} 
       </div>
 
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 
 <style>
@@ -117,14 +122,24 @@
       background-color: var(--footer-bg);
       color: var(--text-color);
     }
-  </style>  
+  </style>
+
+
+
+<!--
+  EGO COMMENT
 
   <div class="footer">
     <p>Built and Designed by Scott Minalga</p>
   </div>
+
+  -->
+
+
+
   <div class="footer">
     <p>Version 1.0</p>
- </body>
+  </body>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
