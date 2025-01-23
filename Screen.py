@@ -536,13 +536,14 @@ def get_job(job_number):
 @app.route('/get_entry_data', methods=['GET'])
 def get_entry_data():
     job_number = request.args.get('jobNumber')
-    entry = ASM01.query.filter_by(job_number=job_number).first() or \
-            ASM02.query.filter_by(job_number=job_number).first() or \
-            archive.query.filter_by(job_number=job_number).first()
-
+    entry = (
+        ASM01.query.filter_by(job_number=job_number).first()
+        or ASM02.query.filter_by(job_number=job_number).first()
+        or archive.query.filter_by(job_number=job_number).first()
+    )
     if not entry:
         return jsonify({'error': 'Entry not found'}), 404
-
+    
     return jsonify({
         'project_number': entry.project_number,
         'job_number': entry.job_number,
@@ -554,45 +555,9 @@ def get_entry_data():
         'due_date': entry.due_date,
         'order_date': entry.order_date,
         'ship_date': entry.ship_date,
-        'order_quantity': entry.order_quantity
+        'order_quantity': entry.order_quantity,
     })
 
-
-@app.route('/update_entry', methods=['POST'])
-def update_entry():
-    print("Received form data: ", request.form)  # Debug log for form data
-
-    job_number = request.form.get('jobNumber')
-    if not job_number:
-        return jsonify({'error': 'jobNumber is missing'}), 400
-
-    # Fetch the original entry
-    entry = ASM01.query.filter_by(job_number=job_number).first() or \
-            ASM02.query.filter_by(job_number=job_number).first() or \
-            archive.query.filter_by(job_number=job_number).first()
-
-    if not entry:
-        return jsonify({'error': f'Entry with job number {job_number} not found'}), 404
-
-    try:
-        # Update fields from the form data
-        entry.project_number = request.form.get('project_number')
-        entry.sales_order = request.form.get('sales_order')
-        entry.customer_name = request.form.get('customer_name')
-        entry.builder = request.form.get('builder')
-        entry.status = request.form.get('status')
-        entry.notes = request.form.get('notes')
-        entry.due_date = request.form.get('due_date')
-        entry.order_date = request.form.get('order_date')
-        entry.ship_date = request.form.get('ship_date')
-        entry.order_quantity = request.form.get('order_quantity')
-
-        db.session.commit()
-        return jsonify({'message': 'Entry updated successfully!'})
-    except Exception as e:
-        print(f"Error updating entry: {e}")
-        db.session.rollback()
-        return jsonify({'error': 'Failed to update entry'}), 500
 
 @app.route('/change_table', methods=['POST'])
 def change_table():
@@ -678,39 +643,66 @@ def delete_entry():
         return jsonify({'status': 'error', 'message': 'Failed to archive entry.'}), 500
 
 
-@app.route('/update_order', methods=['POST'])
+@app.route('/update_entry', methods=['POST'])
+def update_entry():
+    try:
+        print("Received form data:", request.form)  # Debug log
+        job_number = request.form.get('jobNumber')
+
+        if not job_number:
+            return jsonify({'error': 'jobNumber is missing'}), 400
+
+        entry = ASM01.query.filter_by(job_number=job_number).first() or \
+                ASM02.query.filter_by(job_number=job_number).first() or \
+                archive.query.filter_by(job_number=job_number).first()
+
+        if not entry:
+            return jsonify({'error': f'Entry with job number {job_number} not found'}), 404
+
+        # Update fields from the form
+        entry.project_number = request.form.get('project_number')
+        entry.sales_order = request.form.get('sales_order')
+        entry.customer_name = request.form.get('customer_name')
+        entry.builder = request.form.get('builder')
+        entry.status = request.form.get('status')
+        entry.notes = request.form.get('notes')
+        entry.due_date = request.form.get('due_date')
+        entry.order_date = request.form.get('order_date')
+        entry.ship_date = request.form.get('ship_date')
+        entry.order_quantity = request.form.get('order_quantity')
+
+        print(f"Updating entry: {entry.__dict__}")  # Log updated entry data
+        db.session.commit()
+        return jsonify({'message': 'Entry updated successfully!'})
+    except Exception as e:
+        print(f"Error during update: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update entry'}), 500
+
+@app.route("/update_order", methods=["POST"])
 def update_order():
     try:
-        data = request.get_json()
-        print("Received order data:", data)  # Debugging log
+        data = request.get_json()            # JSON: { "order": [ { "job_number": "X", "order": 0 }, ... ] }
+        order_list = data.get("order", [])   # Extract the list
 
-        order = data.get('order', [])
-        if not isinstance(order, list):
-            return jsonify({'success': False, 'message': 'Invalid order format.'}), 400
-
-        for item in order:
-            job_number = item.get("job_number")
-            new_order = item.get("order")
-
-            if not job_number or not isinstance(new_order, int):
-                print(f"Skipping invalid item: {item}")
-                continue
-
-            job = ASM01.query.filter_by(job_number=job_number).first() or \
-                  ASM02.query.filter_by(job_number=job_number).first() or \
-                  archive.query.filter_by(job_number=job_number).first()
-
-            if job:
-                job.order = new_order
-            else:
-                print(f"No matching job found for job_number: {job_number}")
+        for item in order_list:
+            job_number = item["job_number"]
+            new_order = item["order"]
+            
+            # Find the matching record in ASM01 or ASM02 or archive
+            entry = (ASM01.query.filter_by(job_number=job_number).first()
+                     or ASM02.query.filter_by(job_number=job_number).first()
+                     or archive.query.filter_by(job_number=job_number).first())
+            
+            if entry:
+                entry.order = new_order  # assign the new order
 
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Order updated successfully.'})
+        return jsonify({"success": True})
     except Exception as e:
-        print(f"Error updating order: {e}")
         db.session.rollback()
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 
 with app.app_context():

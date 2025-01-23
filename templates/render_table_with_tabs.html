@@ -203,23 +203,31 @@ function showEditEntryModal(jobNumber) {
 
     // Fetch and populate other fields
     $.get("/get_entry_data", { jobNumber: jobNumber })
-        .done(function (data) {
-            form.find("#project_number").val(data.project_number);
-            form.find("#sales_order").val(data.sales_order);
-            form.find("#customer_name").val(data.customer_name);
-            form.find("#builder").val(data.builder);
-            form.find("#status").val(data.status);
-            form.find("#notes").val(data.notes);
-            form.find("#due_date").val(data.due_date);
-            form.find("#order_date").val(data.order_date);
-            form.find("#ship_date").val(data.ship_date);
-            form.find("#order_quantity").val(data.order_quantity);
+    .done(function (data) {
+        console.log("Received data:", data); // Log the data to confirm it's an object
+        if (typeof data !== 'object') {
+            console.error("Invalid data format:", data);
+            alert("Unexpected response format.");
+            return;
+        }
 
-            modal.modal("show");
-        })
-        .fail(function () {
-            alert("Failed to fetch entry data. Please try again.");
-        });
+        form.find("#project_number").val(data.project_number);
+        form.find("#sales_order").val(data.sales_order);
+        form.find("#customer_name").val(data.customer_name);
+        form.find("#builder").val(data.builder);
+        form.find("#status").val(data.status);
+        form.find("#notes").val(data.notes);
+        form.find("#due_date").val(data.due_date);
+        form.find("#order_date").val(data.order_date);
+        form.find("#ship_date").val(data.ship_date);
+        form.find("#order_quantity").val(data.order_quantity);
+
+        modal.modal("show");
+    })
+    .fail(function () {
+        alert("Failed to fetch entry data. Please try again.");
+    });
+
 }
 
 function showChangeTableModal(jobNumber) {
@@ -380,50 +388,20 @@ function deleteEntry(jobNumber) {
     }
 }
 
-$(document).ready(function () {
-    // Function to open the modal and populate fields
-    window.showEditEntryModal = function (jobNumber) {
-        const modal = $("#editEntryModal");
-        const form = $("#editEntryForm");
-
-        // Set the job number in the hidden field
-        form.find("#jobNumber").val(jobNumber);
-
-        // Fetch the current entry data
-        $.get("/get_entry_data", { jobNumber: jobNumber })
-    .done(function (data) {
-        form.find("#project_number").val(data.project_number);
-        form.find("#sales_order").val(data.sales_order);
-        form.find("#customer_name").val(data.customer_name);
-        form.find("#builder").val(data.builder);
-        form.find("#status").val(data.status);
-        form.find("#notes").val(data.notes);
-        form.find("#due_date").val(data.due_date);
-        form.find("#order_date").val(data.order_date);
-        form.find("#ship_date").val(data.ship_date);
-        form.find("#order_quantity").val(data.order_quantity);
-
-        modal.modal("show");
-    })
-    .fail(function () {
-        alert("Failed to fetch entry data. Please try again.");
-    });
-
-    };
 
     // Handle form submission
     $("#editEntryForm").on("submit", function (e) {
     e.preventDefault();
 
-    const formData = $(this).serialize();
-    console.log("Submitting form data:", formData); // Debugging Log
+    const formData = $(this).serialize(); // Serialize form data
+    console.log("Submitting form data:", formData);
 
     $.ajax({
         url: "/update_entry",
         type: "POST",
         data: formData,
         success: function (response) {
-            console.log("Response from server:", response);
+            console.log("Server response:", response);
             alert(response.message || "Entry updated successfully!");
             location.reload();
         },
@@ -433,6 +411,8 @@ $(document).ready(function () {
         },
     });
 });
+
+
 </script>
 
 <script>
@@ -541,23 +521,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const modal = $("#editEntryModal");
     const form = $("#editEntryForm");
 
-    // Fetch entry data
-    $.get("/get_entry_data", { jobNumber: jobNumber }, function (data) {
-        form.find("#project_number").val(data.project_number);
-        form.find("#sales_order").val(data.sales_order);
-        form.find("#customer_name").val(data.customer_name);
-        form.find("#builder").val(data.builder);
-        form.find("#status").val(data.status);
-        form.find("#notes").val(data.notes);
-        form.find("#due_date").val(data.due_date);
-        form.find("#order_date").val(data.order_date);
-        form.find("#ship_date").val(data.ship_date);
-        form.find("#order_quantity").val(data.order_quantity);
+    // Populate the hidden jobNumber field
+    form.find("#jobNumber").val(jobNumber);
 
-        // Show the modal
-        modal.modal("show");
+    // Fetch and populate other fields
+    $.get("/get_entry_data", { jobNumber: jobNumber })
+        .done(function (data) {
+            form.find("#project_number").val(data.project_number);
+            form.find("#sales_order").val(data.sales_order);
+            form.find("#customer_name").val(data.customer_name);
+            form.find("#builder").val(data.builder);
+            form.find("#status").val(data.status);
+            form.find("#notes").val(data.notes);
+            form.find("#due_date").val(data.due_date);
+            form.find("#order_date").val(data.order_date);
+            form.find("#ship_date").val(data.ship_date);
+            form.find("#order_quantity").val(data.order_quantity);
+
+            modal.modal("show");
+        })
+        .fail(function () {
+            alert("Failed to fetch entry data. Please try again.");
+        });
+}
+
     }); // Close $.get
-} // Close function
 
 function deleteEntry(jobNumber) {
     const confirmation = confirm("Are you sure you want to move this entry to the archive?");
