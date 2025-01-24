@@ -608,15 +608,15 @@ def delete_entry():
     if not job_number:
         return jsonify({'status': 'error', 'message': 'Job number is missing.'}), 400
 
-    # Attempt to find the job in ASM01 or ASM02
-    entry = ASM01.query.filter_by(job_number=job_number).first() or \
-            ASM02.query.filter_by(job_number=job_number).first()
+    # Try to find this job in ASM01 or ASM02
+    entry = ASM01.query.filter_by(job_number=job_number).first() \
+            or ASM02.query.filter_by(job_number=job_number).first()
 
     if not entry:
         return jsonify({'status': 'error', 'message': 'Entry not found.'}), 404
 
     try:
-        # Move the entry to the archive
+        # Move the entry to the archive (make sure to include 'order=entry.order')
         archived_entry = archive(
             project_number=entry.project_number,
             job_number=entry.job_number,
@@ -628,11 +628,12 @@ def delete_entry():
             due_date=entry.due_date,
             order_date=entry.order_date,
             ship_date=entry.ship_date,
-            order_quantity=entry.order_quantity
+            order_quantity=entry.order_quantity,
+            order=entry.order  # <-- IMPORTANT
         )
         db.session.add(archived_entry)
 
-        # Delete the entry from the original table
+        # Now remove it from the original table
         db.session.delete(entry)
         db.session.commit()
 
