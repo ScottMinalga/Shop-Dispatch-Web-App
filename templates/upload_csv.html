@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Upload CSV</h1>
+<form action="{{ url_for('upload_csv') }}" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="csv_file">Select CSV File:</label>
+        <input type="file" name="csv_file" id="csv_file" required>
+    </div>
+    <button type="submit">Upload</button>
+</form>
+{% endblock %}

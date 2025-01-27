@@ -25,7 +25,6 @@
       <th>Notes</th>
       <th>Ship Date</th>
       <th>Order Quantity</th>
-      <th>Notes</th>
     </tr>
     <tr>
       <th><input type="text" id="filterPartNumber" placeholder="Filter"></th>
@@ -37,113 +36,148 @@
       <th><input type="text" id="filterNotes" placeholder="Filter"></th>
       <th><input type="text" id="filterShipDate" placeholder="Filter"></th>
       <th><input type="text" id="filterOrderQuantity" placeholder="Filter"></th>
-      <th><input type="text" id="filterNotes2" placeholder="Filter"></th>
     </tr>
   </thead>
   <tbody>
     {% for part in parts %}
-    <tr>
-      <td>{{ part.part_number }}</td>
-      <td>{{ part.project_number }}</td>
-      <td>{{ part.job_number }}</td>
-      <td>{{ part.sales_order }}</td>
-      <td>{{ part.vendor_name }}</td>
-      <td class="status-td">
-        <span class="status-text">{{ part.status }}</span>
-        {% if "user_id" in session and session["is_admin"] %}
-        <button class="btn btn-sm btn-primary edit-status-button">Edit</button>
-        <button class="btn btn-danger btn-sm delete-button">Delete</button>
-        <div class="edit-status-form" style="display: none;">
-          <input type="text" class="new-status-input" value="{{ part.status }}">
-          <button class="btn btn-sm btn-success save-status-button">Save</button>
-          <button class="btn btn-sm btn-danger cancel-status-button">Cancel</button>
-        </div>
-        {% endif %}
-      </td>
-      <td>{{ part.notes }}</td>
-      <td>{{ part.ship_date }}</td>
-      <td>{{ part.order_quantity }}</td>
-      <td>{{ part.notes2 }}</td>
-    </tr>
+      <tr>
+        <!-- Make each cell "editable" and store which field it corresponds to -->
+        <td class="editable" data-field="part_number">{{ part.part_number }}</td>
+        <td class="editable" data-field="project_number">{{ part.project_number }}</td>
+        <td class="editable" data-field="job_number">{{ part.job_number }}</td>
+        <td class="editable" data-field="sales_order">{{ part.sales_order }}</td>
+        <td class="editable" data-field="vendor_name">{{ part.vendor_name }}</td>
+        <td class="editable" data-field="status">{{ part.status }}</td>
+        <td class="editable" data-field="notes">{{ part.notes }}</td>
+        <td class="editable" data-field="ship_date">{{ part.ship_date }}</td>
+        <td class="editable" data-field="order_quantity">{{ part.order_quantity }}</td>
+    
+        <!-- Action buttons -->
+        <td>
+          {% if "user_id" in session and session["is_admin"] %}
+            <button class="btn btn-sm btn-primary edit-part-button">Edit</button>
+            <button class="btn btn-sm btn-success save-part-button" style="display: none;">Save</button>
+            <button class="btn btn-sm btn-danger cancel-part-button" style="display: none;">Cancel</button>
+            <button class="btn btn-danger btn-sm delete-button">Delete</button>
+          {% endif %}
+        </td>
+      </tr>
     {% endfor %}
-  </tbody>
+    </tbody>
+    
 </table>
 
 <!-- JavaScript for filtering -->
 <script>
- $(document).ready(function() {
-  $(".edit-status-button").click(function() {
-    const $statusTd = $(this).parent();
-    const $statusText = $statusTd.find(".status-text");
-    const $editStatusForm = $statusTd.find(".edit-status-form");
-
-    // Hide status text and Edit button
-    $statusText.hide();
-    $(this).hide();
-
-    // Show status form
-    $editStatusForm.show();
-  });
-
-  $(".save-status-button").click(function() {
-    const $statusTd = $(this).parent().parent();
-    const $statusText = $statusTd.find(".status-text");
-    const $newStatusInput = $statusTd.find(".new-status-input");
-    const newStatus = $newStatusInput.val();
-
-    // AJAX call to update status
-    $.ajax({
-    url: '/update_status',  // The URL of your server-side route for updating status
-    type: 'POST',           // The HTTP method, could be POST, PUT, etc. as per your server setup
-    data: {                 // The data to send to server
-        part_number: $statusTd.siblings(':first-child').text(),  // Gets the part_number from the first td of this tr
-        new_status: newStatus  // The new status to set
-    },
-    success: function(response) {  // This function is called if the request succeeds
-        // Hide status form and show status text and Edit button
-        $statusTd.find(".edit-status-form").hide();
-        $statusText.text(newStatus).show();
-        $statusTd.find(".edit-status-button").show();
-    },
-    error: function(jqXHR, textStatus, errorThrown) {  // This function is called if the request fails
-        console.error('Error updating status:', textStatus, errorThrown);
-    }
-});
-
-    // Hide status form and show status text and Edit button
-    $statusTd.find(".edit-status-form").hide();
-    $statusText.text(newStatus).show();
-    $statusTd.find(".edit-status-button").show();
-  });
-
-  $(".cancel-status-button").click(function() {
-    const $statusTd = $(this).parent().parent();
-    const $statusText = $statusTd.find(".status-text");
-
-    // Hide status form and show status text and Edit button
-    $statusTd.find(".edit-status-form").hide();
-    $statusText.show();
-    $statusTd.find(".edit-status-button").show();
-  });
-});
-
-$(".delete-button").click(function() {
-    if(confirm("Are you sure you want to delete this part?")) {
+  $(document).ready(function() {
+    // 1. Clicking “Edit” => Turn each cell into an <input>.
+    $(document).on("click", ".edit-part-button", function() {
       const $row = $(this).closest("tr");
-      const partNumber = $row.find("td:first-child").text();
-
+  
+      // Hide "Edit", show "Save" + "Cancel"
+      $row.find(".edit-part-button").hide();
+      $row.find(".save-part-button, .cancel-part-button").show();
+  
+      // For each editable cell, swap the text for an <input> with that text.
+      $row.find(".editable").each(function() {
+        const $cell = $(this);
+        const fieldName = $cell.data("field");
+        const originalText = $cell.text().trim();
+  
+        // Store original text in case user clicks “Cancel”
+        $cell.data("original", originalText);
+  
+        // Decide input type (optional). For date/number fields:
+        let inputType = "text";
+        if (fieldName === "ship_date") {
+          inputType = "date";
+        } else if (fieldName === "order_quantity") {
+          inputType = "number";
+        }
+  
+        // Create an input
+        const $input = $(`<input type="${inputType}" class="form-control" />`).val(originalText);
+        $cell.empty().append($input);
+      });
+    });
+  
+    // 2. Clicking “Cancel” => Revert to original text.
+    $(document).on("click", ".cancel-part-button", function() {
+      const $row = $(this).closest("tr");
+  
+      // Restore each cell’s original text
+      $row.find(".editable").each(function() {
+        const $cell = $(this);
+        const originalText = $cell.data("original");
+        $cell.empty().text(originalText);
+      });
+  
+      // Hide "Save"+"Cancel", show "Edit"
+      $row.find(".save-part-button, .cancel-part-button").hide();
+      $row.find(".edit-part-button").show();
+    });
+  
+    // 3. Clicking “Save” => Gather new input values, AJAX POST to /update_part, then show them.
+    $(document).on("click", ".save-part-button", function() {
+      const $row = $(this).closest("tr");
+  
+      // Gather all updated values from the inputs
+      let formData = {};
+      $row.find(".editable").each(function() {
+        const $cell = $(this);
+        const fieldName = $cell.data("field");
+        const $input = $cell.find("input");
+        formData[fieldName] = $input.length ? $input.val() : $cell.text().trim();
+      });
+  
+      // Make an AJAX call to your route, e.g. /update_part
       $.ajax({
-        url: '/parts/' + partNumber,  // Include the part number in the URL
-        type: 'DELETE',                // Change from 'POST' to 'DELETE'
-        success: function(response) {  // This function is called if the request succeeds
-          // Remove the row from the table
-          $row.remove();
+        url: '/update_part',
+        type: 'POST',
+        data: formData,  // If your server expects JSON, do JSON.stringify(formData) + contentType:'application/json'
+        success: function(response) {
+          if (response.success) {
+            // Replace each cell’s contents with the new text
+            $row.find(".editable").each(function() {
+              const $cell = $(this);
+              const fieldName = $cell.data("field");
+              const newValue = formData[fieldName];
+              $cell.empty().text(newValue);
+            });
+            // Hide “Save”+“Cancel”, show “Edit”
+            $row.find(".save-part-button, .cancel-part-button").hide();
+            $row.find(".edit-part-button").show();
+          } else {
+            console.error("Update failed:", response.message);
+            alert("Failed to update part: " + response.message);
+          }
         },
-        error: function(jqXHR, textStatus, errorThrown) {  // This function is called if the request fails
-          console.error('Error deleting part:', textStatus, errorThrown);
+        error: function(xhr, status, error) {
+          console.error("Error updating part:", error);
+          alert("An error occurred while updating the part.");
         }
       });
-    }
+    });
+  
+    // 4. “Delete” button logic remains basically the same
+    $(".delete-button").click(function() {
+      if(confirm("Are you sure you want to delete this part?")) {
+        const $row = $(this).closest("tr");
+        const partNumber = $row.find('td[data-field="part_number"]').text().trim();
+  
+        $.ajax({
+          url: '/parts/' + partNumber,
+          type: 'DELETE',
+          success: function(response) {
+            $row.remove(); // remove the row on success
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            console.error('Error deleting part:', textStatus, errorThrown);
+          }
+        });
+      }
+    });
   });
-</script>
+  </script>
+  
 {% endblock %}

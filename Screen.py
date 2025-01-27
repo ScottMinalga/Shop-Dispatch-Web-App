@@ -7,7 +7,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, DateField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import DataRequired
 from sqlalchemy import Column, Integer
-
+import csv
 
 
 # Create instance of the app
@@ -388,25 +388,6 @@ def view_parts(job_number=None):
         all_parts = parts.query.all()
     return render_template("view_parts.html", parts=all_parts)
 
-@app.route('/parts/<part_number>', methods=['PUT'])
-def update_part(part_number):
-    # Verify the user is logged in and is an admin
-    if 'user_id' not in session or not session['is_admin']:
-        return jsonify({'error': 'Not authorized'}), 403
-    
-    # Query the part
-    part = Part.query.get(part_number)
-    if part is None:
-        return jsonify({'error': 'Part not found'}), 404
-
-    # Update the status
-    new_status = request.json.get('status')
-    if new_status is not None:
-        part.status = new_status
-        db.session.commit()
-
-    return jsonify({'message': 'Part updated successfully'})
-
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
@@ -704,7 +685,81 @@ def update_order():
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
+@app.route("/update_part", methods=['POST'])
+def update_part():
+    # Because we're sending form data (not JSON) from JS:
+    part_number = request.form.get('part_number')
+    if not part_number:
+        return jsonify({'success': False, 'message': 'No part_number provided'}), 400
 
+    part = parts.query.filter_by(part_number=part_number).first()
+    if not part:
+        return jsonify({'success': False, 'message': f'Part {part_number} not found'}), 404
+
+    # Update all fields from the request
+    part.project_number = request.form.get('project_number')
+    part.job_number = request.form.get('job_number')
+    part.sales_order = request.form.get('sales_order')
+    part.vendor_name = request.form.get('vendor_name')
+    part.status = request.form.get('status')
+    part.notes = request.form.get('notes')
+    part.ship_date = request.form.get('ship_date')
+    part.order_quantity = request.form.get('order_quantity')
+
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Part updated successfully'})
+
+@app.route("/upload_csv", methods=["GET", "POST"])
+def upload_csv():
+    if request.method == "POST":
+        # 1. Check if the file is in the request
+        if "csv_file" not in request.files:
+            flash("No file part in the request.", "danger")
+            return redirect(url_for("upload_csv"))
+        
+        file = request.files["csv_file"]
+        if file.filename == "":
+            flash("No selected file.", "danger")
+            return redirect(url_for("upload_csv"))
+        
+        # 2. Parse the CSV
+        try:
+            # file.stream is an open file object
+            csv_reader = csv.DictReader(file.stream)  
+            
+            rows_added = 0
+            for row in csv_reader:
+                # row is a dictionary with keys = CSV header columns
+                # e.g. row["part_number"], row["job_number"], etc.
+
+                # Create a new `parts` object (assuming your model is named `parts`)
+                new_part = parts(
+                    part_number = row["part_number"],
+                    project_number = row["project_number"],
+                    job_number = row["job_number"],
+                    sales_order = row["sales_order"],
+                    vendor_name = row["vendor_name"],
+                    status = row["status"],
+                    notes = row["notes"],
+                    ship_date = row["ship_date"],
+                    order_quantity = row["order_quantity"],
+                    order_date = row["order_date"],
+                    received_date = row["received_date"]
+                )
+
+                db.session.add(new_part)
+                rows_added += 1
+
+            db.session.commit()
+            flash(f"CSV imported successfully! {rows_added} records added.", "success")
+            return redirect(url_for("view_parts"))
+        
+        except Exception as e:
+            flash(f"Error importing CSV: {e}", "danger")
+            return redirect(url_for("upload_csv"))
+    
+    # If GET, just show the form
+    return render_template("upload_csv.html")
 
 with app.app_context():
     if not hasattr(ASM01, 'order'):
