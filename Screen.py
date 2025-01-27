@@ -761,6 +761,16 @@ def upload_csv():
     # If GET, just show the form
     return render_template("upload_csv.html")
 
+@app.route('/view_users', methods=['GET'])
+@admin_required
+def view_users():
+    # Query all users from the database
+    users = User.query.all()
+    
+    # Render the template with the users data
+    return render_template('view_users.html', users=users)
+
+
 with app.app_context():
     if not hasattr(ASM01, 'order'):
         try:
